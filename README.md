@@ -130,6 +130,13 @@ The `FileMeta` return value contains some meta data about the input
 data, like a sha checksum, size, chunksize and the mimetype. Its `id`
 can later be used to get the data back out.
 
+The id is generated using the random id generation function from the
+config. You can supply a custom fixed id for a file, too.
+
+``` scala
+bitpeace.saveNew(data, chunksize, MimetypeHint.none, fileId = Some("abc123"))
+```
+
 #### save (no duplicates)
 
 The `saveNew` command simply inserts the data generating a random

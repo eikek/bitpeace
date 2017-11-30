@@ -20,7 +20,7 @@ trait Bitpeace[F[_]] {
 
   /** Save data in chunks of size `chunkSize` and use a random id.
     */
-  def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, time: Instant = Instant.now): Stream[F, FileMeta]
+  def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String] = None, time: Instant = Instant.now): Stream[F, FileMeta]
 
   /** Save data in chunks of size `chunkSize` and check for duplicates.
     *
@@ -29,7 +29,7 @@ trait Bitpeace[F[_]] {
     * written and the duplicate is returned.
     */
   def save(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, time: Instant = Instant.now): Stream[F, Outcome[FileMeta]] =
-    saveNew(data, chunkSize, hint, time).flatMap(makeUnique)
+    saveNew(data, chunkSize, hint, None, time).flatMap(makeUnique)
 
   /** “Merge” duplicates.
     *
@@ -109,8 +109,8 @@ object Bitpeace {
   def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Monad[F]): Bitpeace[F] = new Bitpeace[F] {
     val stmt = sql.Statements(config)
 
-    def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, time: Instant): Stream[F, FileMeta] =
-      Stream.eval(config.randomIdGen).flatMap { id =>
+    def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String], time: Instant): Stream[F, FileMeta] =
+      Stream.eval(fileId.map(F.pure).getOrElse(config.randomIdGen)).flatMap { id =>
         data.through(rechunk(chunkSize)).zipWithIndex.
           map(t => FileChunk(id, t._2, t._1)).
           flatMap(ch =>

@@ -20,6 +20,15 @@ object BitpeaceSpec extends BitpeaceTestSuite {
   def chunkCount =
     sql"""SELECT count(*) from FileChunk""".query[Int].unique
 
+  test ("save new with id") { xa =>
+    val store = makeBitpeace(xa)
+    val chunksize = 16 * 1024
+    val data = resourceStream("/files/file.pdf", chunksize)
+
+    val out = store.saveNew(data, chunksize, MimetypeHint.filename("file.pdf"), fileId = Some("abc")).runLast.unsafeRun.get
+    assertEquals(out.id, "abc")
+  }
+
   test ("add chunk in random order") { xa =>
     val store = makeBitpeace(xa)
     val chunksize = 16 * 1024
