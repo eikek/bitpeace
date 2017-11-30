@@ -2,9 +2,8 @@ package bitpeace
 
 import java.time.Instant
 import cats.data._
-import cats._
 import fs2.{Pipe, Stream, Sink}
-import fs2.util.Catchable
+import fs2.util.{Catchable, Suspendable}
 import fs2.interop.cats._
 import doobie.imports._
 import scodec.bits.ByteVector
@@ -106,7 +105,7 @@ trait Bitpeace[F[_]] {
 
 object Bitpeace {
 
-  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Monad[F]): Bitpeace[F] = new Bitpeace[F] {
+  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Suspendable[F]): Bitpeace[F] = new Bitpeace[F] {
     val stmt = sql.Statements(config)
 
     def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String], time: Instant): Stream[F, FileMeta] =
@@ -170,10 +169,11 @@ object Bitpeace {
             val makeSha = {
               val shab = sha.newBuilder
               val length = new java.util.concurrent.atomic.AtomicLong(0)
-              val shaUpdate: Sink[F, FileChunk] = _.map { c =>
+              val shaUpdate: Sink[F, FileChunk] = _.evalMap(c => F.delay {
                 shab.update(c.chunkData)
                 length.addAndGet(c.chunkLength)
-              }
+                ()
+              })
               getChunks(chunk.fileId).to(shaUpdate).drain ++ Stream.emit((shab.get, length.get))
             }
             makeSha.flatMap { case (checksum, length) =>

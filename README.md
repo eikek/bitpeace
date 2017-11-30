@@ -1,4 +1,4 @@
-# bitpeace -- Handle binary data with doobie
+# bitpeace – Handle binary data with doobie
 
 This is a library to store and load binary data based on
 [doobie](https://github.com/tpolecat/doobie).
