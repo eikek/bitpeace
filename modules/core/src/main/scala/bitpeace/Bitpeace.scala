@@ -1,11 +1,11 @@
 package bitpeace
 
 import java.time.Instant
+import cats.effect.{Effect, Sync}
 import cats.data._
+import cats.implicits._
 import fs2.{Pipe, Stream, Sink}
-import fs2.util.{Catchable, Suspendable}
-import fs2.interop.cats._
-import doobie.imports._
+import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
 
 /** A store for binary data.
@@ -79,12 +79,12 @@ trait Bitpeace[F[_]] {
 
   /** Return whether a file with given id has a chunk with the given
     * chunkNr. */
-  def chunkExists(id: String, chunkNr: Int): Stream[F, Boolean]
+  def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean]
 
   /** Like {{{chunkExists}} but also checks the chunk size. If a chunk
     * with different size exists, it is removed and {{{false}}} is
     * returned. */
-  def chunkExistsRemove(id: String, chunkNr: Int, chunkLength: Long): Stream[F, Boolean]
+  def chunkExistsRemove(id: String, chunkNr: Long, chunkLength: Long): Stream[F, Boolean]
 
   /** Deletes the file data and meta-data. */
   def delete(id: String): Stream[F, Boolean]
@@ -105,7 +105,7 @@ trait Bitpeace[F[_]] {
 
 object Bitpeace {
 
-  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Suspendable[F]): Bitpeace[F] = new Bitpeace[F] {
+  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Effect[F]): Bitpeace[F] = new Bitpeace[F] {
     val stmt = sql.Statements(config)
 
     def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String], time: Instant): Stream[F, FileMeta] =
@@ -126,7 +126,7 @@ object Bitpeace {
         case Some(fm) =>
           delete(k.id).map(_ => Outcome.Unmodified(fm))
         case None =>
-          val io = Catchable[ConnectionIO]
+          val io = Sync[ConnectionIO]
           val update =
             stmt.tryUpdateFileId(k.id, k.checksum).flatMap {
               case Right(_) =>
@@ -138,7 +138,7 @@ object Bitpeace {
                     case Some(meta) =>
                       io.pure[Outcome[FileMeta]](Outcome.Unmodified(meta))
                     case None =>
-                      io.fail[Outcome[FileMeta]] {
+                      io.raiseError[Outcome[FileMeta]] {
                         new Exception(s"Cannot update file key $k but cannot find it either", sqlex)
                       }
                   }
@@ -158,7 +158,7 @@ object Bitpeace {
           }
 
         case false =>
-          val updateMime =
+          val updateMime: Stream[F, FileMeta] =
             if (chunk.chunkNr != 0) Stream.empty
             else Stream.eval((for {
               _ <- stmt.updateMimetype(chunk.fileId, config.mimetypeDetect.fromBytes(chunk.chunkData, hint)).run
@@ -185,14 +185,14 @@ object Bitpeace {
           }
 
           def tryInsertMeta(fm: FileMeta) = {
-            val io = Catchable[ConnectionIO]
+            val io = Sync[ConnectionIO]
             stmt.insertFileMeta(fm).run.attemptSql.flatMap {
               case Right(_) =>
                 io.pure(fm)
               case Left(sqlex) =>
                 stmt.selectFileMeta(fm.id).flatMap {
                   case Some(m) => io.pure(m)
-                  case None => io.fail[FileMeta](new Exception(s"Cannot insert or find FileMeta $fm", sqlex))
+                  case None => io.raiseError[FileMeta](new Exception(s"Cannot insert or find FileMeta $fm", sqlex))
                 }
             }
           }
@@ -293,14 +293,14 @@ object Bitpeace {
     def getChunks(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Stream[F,FileChunk] =
       stmt.selectChunks(id, offset, limit).process.transact(xa)
 
-    def chunkExists(id: String, chunkNr: Int): Stream[F, Boolean] =
+    def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExists(id, chunkNr).transact(xa))
 
-    def chunkExistsRemove(id: String, chunkNr: Int, chunkLength: Long): Stream[F, Boolean] =
+    def chunkExistsRemove(id: String, chunkNr: Long, chunkLength: Long): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExistsRemove(id, chunkNr, chunkLength).transact(xa))
 
     private def rechunk(size: Int): Pipe[F, Byte, ByteVector] =
-      _.rechunkN(size, true).chunks.map(c => ByteVector.view(c.toArray))
+      _.segmentN(size, true).map(c => ByteVector.view(c.toArray))
 
     private def accumulateKey(time: Instant, chunkSize: Int, hint: MimetypeHint): Pipe[F, FileChunk, FileMeta] =
       _.fold((sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize)))({

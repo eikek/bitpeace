@@ -1,7 +1,7 @@
 package bitpeace
 
 import java.time.Instant
-import doobie.imports._
+import doobie._
 import scodec.bits.ByteVector
 
 package object sql {

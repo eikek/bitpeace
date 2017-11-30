@@ -8,7 +8,7 @@ import scodec.bits.ByteVector
   */
 case class FileChunk(
   fileId: String,
-  chunkNr: Int,
+  chunkNr: Long,
   chunkData: ByteVector) {
 
   lazy val chunkLength: Long = chunkData.length.toLong

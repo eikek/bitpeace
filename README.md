@@ -64,7 +64,9 @@ to use and two functions:
 There is a default config:
 
 ``` scala
-BitpeaceConfig.default[Task]
+import bitpeace._, cats.effect.IO
+
+BitpeaceConfig.default[IO]
 ```
 
 It uses javas `UUID` class to generate random ids and has no ability
@@ -74,7 +76,7 @@ to detect mimetypes. The mimetype will always be
 If you add `tika-core` to your project, you can use the other default:
 
 ``` scala
-BitpeaceConfig.defaultTika[Task]
+BitpeaceConfig.defaultTika[IO]
 ```
 
 which only differs in that the `MimetypeDetect` is now implemented
@@ -84,7 +86,9 @@ The second requirement is a doobie `Transactor` to connect to the
 database. For example, this creates one for the H2 database:
 
 ``` scala
-val xa = Transactor.fromDriverManager[Task](
+import doobie._, doobie.implicits._
+
+val xa = Transactor.fromDriverManager[IO](
   "org.h2.Driver", s"jdbc:h2:./testdb", "sa", ""
 )
 ```

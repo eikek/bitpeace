@@ -12,7 +12,7 @@ object TikaMimetypeDetectSpec extends SimpleTestSuite with Helpers {
       chunks.
       map(c => ByteVector.view(c.toArray)).
       runLog.
-      unsafeRun.head
+      unsafeRunSync.head
 
     assertEquals(tika.fromBytes(bytes, MimetypeHint.none) , Mimetype.`application/pdf`)
     assertEquals(tika.fromBytes(bytes, MimetypeHint.filename("file.pdf")) , Mimetype.`application/pdf`)

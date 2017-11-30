@@ -10,13 +10,13 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.9.7"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.9.7"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0-M8"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0-M8"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core-cats" % "0.4.4"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari-cats" % "0.4.4"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-M9"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-M9"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD

@@ -1,6 +1,6 @@
 package bitpeace.sql
 
-import doobie.imports._
+import doobie._
 
 trait Dbms {
 

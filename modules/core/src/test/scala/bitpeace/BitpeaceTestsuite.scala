@@ -1,16 +1,15 @@
 package bitpeace
 
-import fs2.Task
-import fs2.interop.cats._
-import doobie.imports._
+import cats.effect.IO
+import doobie._, doobie.implicits._
 
 trait BitpeaceTestSuite extends TransactorTestSuite {
 
-  val config = BitpeaceConfig.defaultTika[Task]
+  val config = BitpeaceConfig.defaultTika[IO]
 
-  override def setup(): Transactor[Task] = {
+  override def setup(): Transactor[IO] = {
     val xa = super.setup()
-    BitpeaceTables(config).create(sql.Dbms.H2).transact(xa).unsafeRun
+    BitpeaceTables(config).create(sql.Dbms.H2).transact(xa).unsafeRunSync
     xa
   }
 

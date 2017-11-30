@@ -2,7 +2,7 @@ package bitpeace.sql
 
 import java.time.Instant
 
-import doobie.imports._
+import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
 import cats.implicits._
 
@@ -61,21 +61,21 @@ trait Statements[F[_]] {
   def fileExists(id: String): ConnectionIO[Option[String]] =
     (fr"""SELECT id FROM """ ++ metaTable ++ sql""" WHERE id = $id""").query[String].option
 
-  def chunkExists(id: String, chunkNr: Int): ConnectionIO[Boolean] = {
+  def chunkExists(id: String, chunkNr: Long): ConnectionIO[Boolean] = {
     (fr"SELECT count(*) FROM " ++ chunkTable ++ sql"as fc WHERE fc.fileId = $id AND fc.chunknr = $chunkNr").
       query[Int].
       unique.
       map(_ > 0)
   }
 
-  def chunkExistsRemove(id: String, chunkNr: Int, size: Long) = {
+  def chunkExistsRemove(id: String, chunkNr: Long, size: Long) = {
     for {
       b <- chunkExists(id, chunkNr)
       f <- if (b) chunkLengthCheckOrRemove(id, chunkNr, size) else b.pure[ConnectionIO]
     } yield f
   }
 
-  def chunkLengthCheckOrRemove(fileId: String, chunkNr: Int, chunkLength: Long) = {
+  def chunkLengthCheckOrRemove(fileId: String, chunkNr: Long, chunkLength: Long) = {
     val query = sql"""SELECT count(*) FROM FileChunk
                       WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != ${chunkLength}""".
       query[Int].unique

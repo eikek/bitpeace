@@ -1,13 +1,12 @@
 package bitpeace
 
-import fs2.Task
-import fs2.interop.cats._
-import doobie.imports._
+import cats.effect.IO
+import doobie._, doobie.implicits._
 
 object H2 {
 
-  def tx(db: String): Transactor[Task] =
-    Transactor.fromDriverManager[Task](
+  def tx(db: String): Transactor[IO] =
+    Transactor.fromDriverManager[IO](
       "org.h2.Driver", s"jdbc:h2:$db", "sa", ""
     )
 
