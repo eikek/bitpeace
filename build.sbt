@@ -48,7 +48,9 @@ lazy val publishSettings = Seq(
     else
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false
+  publishArtifact in Test := false,
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  releaseCrossBuild := true
 )
 
 lazy val coreDeps = Seq(`doobie-core`, `scodec-bits`, tika % "provided")
@@ -64,5 +66,6 @@ lazy val core = project.in(file("modules/core")).
   ))
 
 lazy val root = project.in(file(".")).
+  disablePlugins(ReleasePlugin).
   settings(sharedSettings).
   aggregate(core)

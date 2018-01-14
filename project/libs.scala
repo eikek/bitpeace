@@ -10,13 +10,13 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0-M8"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0-M8"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0-M10"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0-M10"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-M9"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-M9"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-M12"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-M12"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
@@ -32,7 +32,7 @@ object libs {
 
   // http://tika.apache.org
   // ASL 2.0
-  val tika = "org.apache.tika" % "tika-core" % "1.16"
+  val tika = "org.apache.tika" % "tika-core" % "1.17"
 
   // https://github.com/Log4s/log4s
   // ASL 2.0

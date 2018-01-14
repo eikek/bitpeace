@@ -154,7 +154,7 @@ object Bitpeace {
         case true =>
           get(chunk.fileId).flatMap {
             case Some(m) => Stream.emit(Outcome.Unmodified(m))
-            case None => Stream.fail(new Exception(s"Chunk $chunk exists, but not corresponding FileMeta"))
+            case None => Stream.raiseError(new Exception(s"Chunk $chunk exists, but not corresponding FileMeta"))
           }
 
         case false =>
@@ -242,7 +242,7 @@ object Bitpeace {
 
           case Validated.Invalid(msg) =>
             //logger.trace(s"Get file ${fm.id} (no range)")
-            Stream.fail(new Exception(s"Invalid range: $msg"))
+            Stream.raiseError(new Exception(s"Invalid range: $msg"))
 
           case Validated.Valid(Range.Empty) =>
             Stream.empty
@@ -265,7 +265,7 @@ object Bitpeace {
           case Validated.Valid(Range.Empty) =>
             Stream.empty
           case Validated.Invalid(msg) =>
-            Stream.fail(new Exception(s"Invalid range: $msg"))
+            Stream.raiseError(new Exception(s"Invalid range: $msg"))
         }
       }
 
@@ -300,7 +300,7 @@ object Bitpeace {
       Stream.eval(stmt.chunkExistsRemove(id, chunkNr, chunkLength).transact(xa))
 
     private def rechunk(size: Int): Pipe[F, Byte, ByteVector] =
-      _.segmentN(size, true).map(c => ByteVector.view(c.toArray))
+      _.segmentN(size, true).map(c => ByteVector.view(c.force.toArray))
 
     private def accumulateKey(time: Instant, chunkSize: Int, hint: MimetypeHint): Pipe[F, FileChunk, FileMeta] =
       _.fold((sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize)))({
