@@ -6,17 +6,17 @@ object libs {
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
-  val `cats-core` = "org.typelevel" %% "cats-core" % "0.9.0"
+  val `cats-core` = "org.typelevel" %% "cats-core" % "0.9.1"
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0-M10"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0-M10"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-M12"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-M12"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-RC1"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-RC1"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD

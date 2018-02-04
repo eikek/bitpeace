@@ -11,7 +11,7 @@ object TikaMimetypeDetectSpec extends SimpleTestSuite with Helpers {
     val bytes = resourceStream("/files/file.pdf").
       chunks.
       map(c => ByteVector.view(c.toArray)).
-      runLog.
+      compile.toVector.
       unsafeRunSync.head
 
     assertEquals(tika.fromBytes(bytes, MimetypeHint.none) , Mimetype.`application/pdf`)

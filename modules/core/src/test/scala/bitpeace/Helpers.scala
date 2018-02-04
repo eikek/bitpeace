@@ -28,7 +28,7 @@ trait Helpers {
   def readResource(name: String, chunksize: Int = 64 * 1024): ByteVector =
     resourceStream(name, chunksize).
       through(readBytes).
-      runLog.
+      compile.toVector.
       unsafeRunSync.head
 
 }
