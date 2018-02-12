@@ -10,13 +10,13 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.0"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.0"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.1"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.1"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0-RC1"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0-RC1"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.0"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.0"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
@@ -44,5 +44,5 @@ object libs {
 
   // https://github.com/monix/minitest
   // Apache 2.0
-  val minitest = "io.monix" %% "minitest" % "2.0.0"
+  val minitest = "io.monix" %% "minitest" % "2.1.0"
 }

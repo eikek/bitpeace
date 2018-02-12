@@ -13,7 +13,7 @@ over http.
 Bitpeace is available from maven central for scala 2.11 and 2.12.
 
 ```
-"com.github.eikek" %% "bitpeace-core" % "0.1.0"
+"com.github.eikek" %% "bitpeace-core" % "0.2.0"
 ```
 
 The initial version `0.1.0` is build against doobie `0.4.x`. From

@@ -255,7 +255,7 @@ object Bitpeace {
         range(fm) match {
           case Validated.Valid(Range.All) =>
             //logger.trace(s"Get file ${fm.id} (no range)")
-            stmt.selectChunkData(fm.id).process.transact(xa).
+            stmt.selectChunkData(fm.id).stream.transact(xa).
               through(Range.unchunk)
 
           case Validated.Valid(r: Range.ByteRange) =>
@@ -291,7 +291,7 @@ object Bitpeace {
       Stream.eval(stmt.insertChunk(fc).run.transact(xa)).map(_ => ())
 
     def getChunks(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Stream[F,FileChunk] =
-      stmt.selectChunks(id, offset, limit).process.transact(xa)
+      stmt.selectChunks(id, offset, limit).stream.transact(xa)
 
     def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExists(id, chunkNr).transact(xa))
