@@ -3,8 +3,8 @@ package bitpeace
 import java.time.Instant
 import cats.effect.{Effect, Sync}
 import cats.data._
-import cats.implicits._
-import fs2.{Pipe, Stream, Sink}
+//import cats.implicits._
+import fs2.{Pipe, RaiseThrowable, Stream}
 import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
 
@@ -105,7 +105,7 @@ trait Bitpeace[F[_]] {
 
 object Bitpeace {
 
-  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Effect[F]): Bitpeace[F] = new Bitpeace[F] {
+  def apply[F[_]](config: BitpeaceConfig[F], xa: Transactor[F])(implicit F: Effect[F], ev: RaiseThrowable[F]): Bitpeace[F] = new Bitpeace[F] {
     val stmt = sql.Statements(config)
 
     def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String], time: Instant): Stream[F, FileMeta] =
@@ -169,12 +169,12 @@ object Bitpeace {
             val makeSha = {
               val shab = sha.newBuilder
               val length = new java.util.concurrent.atomic.AtomicLong(0)
-              val shaUpdate: Sink[F, FileChunk] = _.evalMap(c => F.delay {
+              val shaUpdate: Pipe[F, FileChunk, Unit] = _.evalMap(c => F.delay {
                 shab.update(c.chunkData)
                 length.addAndGet(c.chunkLength)
                 ()
               })
-              getChunks(chunk.fileId).to(shaUpdate).drain ++ Stream.emit((shab.get, length.get))
+              getChunks(chunk.fileId).through(shaUpdate).drain ++ Stream.emit((shab.get, length.get))
             }
             makeSha.flatMap { case (checksum, length) =>
               Stream.eval((for {
@@ -300,7 +300,7 @@ object Bitpeace {
       Stream.eval(stmt.chunkExistsRemove(id, chunkNr, chunkLength).transact(xa))
 
     private def rechunk(size: Int): Pipe[F, Byte, ByteVector] =
-      _.segmentN(size, true).map(c => ByteVector.view(c.force.toArray))
+      _.chunkN(size).map(c => ByteVector.view(c.toArray))
 
     private def accumulateKey(time: Instant, chunkSize: Int, hint: MimetypeHint): Pipe[F, FileChunk, FileMeta] =
       _.fold((sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize)))({

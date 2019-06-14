@@ -13,7 +13,6 @@ import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
 
 object BitpeaceSpec extends BitpeaceTestSuite {
-
   val makeBitpeace: Transactor[IO] => Bitpeace[IO] = xa => Bitpeace(config, xa)
 
   def chunkCount =

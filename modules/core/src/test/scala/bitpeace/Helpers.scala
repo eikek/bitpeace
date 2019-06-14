@@ -1,9 +1,12 @@
 package bitpeace
 
 import java.io.InputStream
-import cats.effect.IO
+import cats.effect._
 import fs2.{io, Pipe, Stream, Chunk}
 import scodec.bits.ByteVector
+import scala.concurrent.ExecutionContext
+import java.util.concurrent.Executors
+import TransactorTestSuite.testContextShift
 
 trait Helpers {
 
@@ -12,7 +15,7 @@ trait Helpers {
   }
 
   def resourceStream(name: String, chunksize: Int = 64 * 1024): Stream[IO, Byte] =
-    io.readInputStream[IO](resource(name), chunksize).
+    io.readInputStream[IO](resource(name), chunksize, Helpers.blockingEc).
       // see https://github.com/functional-streams-for-scala/fs2/issues/1005
       chunks.flatMap(c => Stream.chunk(Chunk.bytes(c.toArray.clone)))
 
@@ -30,5 +33,11 @@ trait Helpers {
       through(readBytes).
       compile.toVector.
       unsafeRunSync.head
+
+}
+
+object Helpers {
+
+  val blockingEc = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(3))
 
 }
