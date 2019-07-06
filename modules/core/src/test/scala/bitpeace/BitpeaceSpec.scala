@@ -3,6 +3,7 @@ package bitpeace
 import java.util.concurrent.CountDownLatch
 import java.util.UUID
 
+import fs2._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -72,8 +73,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out.result.chunks, out1.chunks)
   }
 
-  test ("add chunk in random order concurrently") { xa =>
-    val store = makeBitpeace(xa)
+  test ("add chunk in random order concurrently") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
 
@@ -84,20 +85,26 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       FileChunk(fileId, i, ByteVector.view(c.toArray))
     }).compile.toVector.unsafeRunSync
 
-    chunks.permutations.toVector.par.foreach { bs =>
-      val id = UUID.randomUUID.toString
-      val all = bs.toVector.
-        map(ch => ch.copy(fileId = id)).
-        par.
-        map(ch => store.addChunk(ch, chunksize, out1.chunks, MimetypeHint.none).
-          compile.last.unsafeRunSync.get.result).
-        foldLeft(Vector.empty[FileMeta])(_ :+ _)
+    val prg = Stream.emits(chunks.permutations.toVector).
+      covary[IO].
+      evalMap { bs =>
+        val id = UUID.randomUUID.toString
+        val all = bs.map(ch => ch.copy(fileId = id))
 
-      val last = all.find(_.length > 0).getOrElse(sys.error("No chunk with a length found"))
-      assertEquals(last.checksum, out1.checksum)
-      assertEquals(last.mimetype, out1.mimetype)
-      assertEquals(last.chunks, out1.chunks)
-    }
+        val allResults = Stream.emits(all).covary[IO].
+          parEvalMapUnordered(4)({ ch =>
+            store.addChunk(ch, chunksize, out1.chunks, MimetypeHint.none).compile.last.map(_.get.result)
+          }).
+          compile.toVector.unsafeRunSync
+
+        val last = allResults.find(_.length > 0).getOrElse(sys.error("No chunk with a length found"))
+        assertEquals(last.checksum, out1.checksum)
+        assertEquals(last.mimetype, out1.mimetype)
+        assertEquals(last.chunks, out1.chunks)
+        IO(true)
+      }
+
+    prg.compile.drain.unsafeRunSync
   }
 
   test ("add chunk that exists") { xa =>
