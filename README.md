@@ -10,14 +10,17 @@ over http.
 
 ## Using
 
-Bitpeace is available from maven central for scala 2.11 and 2.12.
+Bitpeace is available from maven central for scala 2.12.
 
 ```
-"com.github.eikek" %% "bitpeace-core" % "0.2.0"
+"com.github.eikek" %% "bitpeace-core" % "0.3.0"
 ```
 
-The initial version `0.1.0` is build against doobie `0.4.x`. From
-bitpeace `0.2.0` it is build agains doobie `0.5.x`.
+| Bitpeace Version | Doobie Version |
+|------------------|----------------|
+| 0.1.0            | 0.4.x          |
+| 0.2.x            | 0.5.x          |
+| 0.3.x            | 0.7.x          |
 
 
 ## Dependencies
@@ -88,6 +91,8 @@ database. For example, this creates one for the H2 database:
 ``` scala
 import doobie._, doobie.implicits._
 
+implicit val CS = IO.contextShift(scala.concurrent.ExecutionContext.global)
+
 val xa = Transactor.fromDriverManager[IO](
   "org.h2.Driver", s"jdbc:h2:./testdb", "sa", ""
 )
@@ -96,15 +101,14 @@ val xa = Transactor.fromDriverManager[IO](
 Given a config and a transactor, the main entrypoint `Bitpeace` can be created:
 
 ``` scala
-val bitpeace = Bitpeace(BitpeaceConfig.defaultTika, xa)
+val bitpeace = Bitpeace(BitpeaceConfig.defaultTika[IO], xa)
 ```
 
 In order to start using it, the database schema must exist. The
 `BitpeaceTables` class is a convenience helper to do that:
 
 ``` scala
-BitpeaceTables(BitpeaceConfig.default).create(sql.Dbms.H2)
-  .transact(xa).unsafeRun
+BitpeaceTables(BitpeaceConfig.default[IO]).create(sql.Dbms.H2).transact(xa).unsafeRunSync
 ```
 
 

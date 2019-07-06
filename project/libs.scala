@@ -44,5 +44,5 @@ object libs {
 
   // https://github.com/monix/minitest
   // Apache 2.0
-  val minitest = "io.monix" %% "minitest" % "2.4.0"
+  val minitest = "io.monix" %% "minitest" % "2.5.0"
 }
