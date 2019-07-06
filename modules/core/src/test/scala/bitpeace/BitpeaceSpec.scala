@@ -2,18 +2,21 @@ package bitpeace
 
 import java.util.concurrent.CountDownLatch
 import java.util.UUID
+import java.nio.file.Path
 
+import fs2._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.effect.IO
 import cats.implicits._
+import cats.effect.IO
 import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
 
 object BitpeaceSpec extends BitpeaceTestSuite {
-  val makeBitpeace: Transactor[IO] => Bitpeace[IO] = xa => Bitpeace(config, xa)
+  def makeBitpeace(p: (Path, Transactor[IO])): Bitpeace[IO] =
+    Bitpeace(config, p._2)
 
   def chunkCount =
     sql"""SELECT count(*) from FileChunk""".query[Int].unique
@@ -70,6 +73,40 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out.result.checksum, out1.checksum)
     assertEquals(out.result.mimetype, out1.mimetype)
     assertEquals(out.result.chunks, out1.chunks)
+  }
+
+  test ("add chunk in random order concurrently") { p =>
+    val store = makeBitpeace(p)
+    val chunksize = 16 * 1024
+    val data = resourceStream("/files/file.pdf", chunksize)
+
+    val out1 = store.saveNew(data, chunksize, MimetypeHint.filename("file.pdf")).compile.last.unsafeRunSync.get
+
+    val fileId = "fileabc"
+    val chunks = data.chunks.zipWithIndex.map({ case (c, i) =>
+      FileChunk(fileId, i, ByteVector.view(c.toArray))
+    }).compile.toVector.unsafeRunSync
+
+    val prg = Stream.emits(chunks.permutations.toVector).
+      covary[IO].
+      evalMap { bs =>
+        val id = UUID.randomUUID.toString
+        val all = bs.map(ch => ch.copy(fileId = id))
+
+        val allResults = Stream.emits(all).covary[IO].
+          parEvalMapUnordered(4)({ ch =>
+            store.addChunk(ch, chunksize, out1.chunks, MimetypeHint.none).compile.last.map(_.get.result)
+          }).
+          compile.toVector.unsafeRunSync
+
+        val last = allResults.find(_.length > 0).getOrElse(sys.error("No chunk with a length found"))
+        assertEquals(last.checksum, out1.checksum)
+        assertEquals(last.mimetype, out1.mimetype)
+        assertEquals(last.chunks, out1.chunks)
+        IO(true)
+      }
+
+    prg.compile.drain.unsafeRunSync
   }
 
   test ("add chunk that exists") { xa =>
@@ -233,8 +270,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(! store.exists("abc").compile.last.unsafeRunSync.get)
   }
 
-  test ("delete") { xa =>
-    val store = makeBitpeace(xa)
+  test ("delete") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
@@ -242,21 +279,21 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(store.delete(fm.id).compile.last.unsafeRunSync.get)
     assert(!store.delete(fm.id).compile.last.unsafeRunSync.get)
 
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 0)
+    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 0)
   }
 
-  test ("remove partial chunk") { xa =>
-    val store = makeBitpeace(xa)
+  test ("remove partial chunk") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
 
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 4)
+    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 4)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
 
     assert(! store.chunkExistsRemove(fm.id, 2, 8 * 1024).compile.last.unsafeRunSync.get)
     assert(! store.chunkExists(fm.id, 2).compile.last.unsafeRunSync.get)
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 3)
+    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 3)
   }
 }

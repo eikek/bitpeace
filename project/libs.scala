@@ -4,10 +4,6 @@ object libs {
 
   val `scala-version` = "2.13.0"
 
-  // https://github.com/scala/scala-parallel-collections
-  // ASL 2.0
-  val scalaParallelCollections = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
   val `cats-core` = "org.typelevel" %% "cats-core" % "1.4.0"

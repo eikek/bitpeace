@@ -70,7 +70,7 @@ lazy val core = project.in(file("modules/core")).
   settings(Seq(
     name := "bitpeace-core",
     description := "Library for dealing with binary data using doobie.",
-    libraryDependencies ++= coreDeps ++ testDeps ++ (if (scalaBinaryVersion.value.startsWith("2.13")) Seq(scalaParallelCollections) else Nil)
+    libraryDependencies ++= coreDeps ++ testDeps
   ))
 
 lazy val root = project.in(file(".")).
