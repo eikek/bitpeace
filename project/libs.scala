@@ -2,7 +2,11 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.12.8"
+  val `scala-version` = "2.13.0"
+
+  // https://github.com/scala/scala-parallel-collections
+  // ASL 2.0
+  val scalaParallelCollections = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -10,13 +14,13 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "1.0.5"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "1.0.5"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "1.1.0-M1"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "1.1.0-M1"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.7.0"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.7.0"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.0-M1"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.0-M1"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD

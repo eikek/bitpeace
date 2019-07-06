@@ -10,17 +10,19 @@ over http.
 
 ## Using
 
-Bitpeace is available from maven central for scala 2.12.
+Bitpeace is available from maven central for scala 2.12 and from
+version 0.4 for scala 2.13.
 
 ```
 "com.github.eikek" %% "bitpeace-core" % "0.3.0"
 ```
 
-| Bitpeace Version | Doobie Version |
-|------------------|----------------|
-| 0.1.0            | 0.4.x          |
-| 0.2.x            | 0.5.x          |
-| 0.3.x            | 0.7.x          |
+| Bitpeace Version | Doobie Version | FS2 Version |
+|------------------|----------------|-------------|
+| 0.1.0            | 0.4.x          | 0.9.x       |
+| 0.2.x            | 0.5.x          | 0.10.x      |
+| 0.3.x            | 0.7.x          | 1.0.x       |
+| 0.4.x            | 0.8.x          | 1.1.x       |
 
 
 ## Dependencies

@@ -1,8 +1,8 @@
 package bitpeace
 
 import javax.activation.{MimeType => JMimeType}
-import scala.collection.JavaConverters._
 import cats.data.Validated
+import Compat._
 
 /** Utility around `javax.activation.Mimetype'. */
 case class Mimetype(
@@ -53,7 +53,7 @@ object Mimetype {
     Validated.catchNonFatal(new JMimeType(mt)).map(_.asScala).map(normalize)
 
   def fromJava(jmt: JMimeType): Mimetype = {
-   val paramNames = jmt.getParameters.getNames.asScala.map(_.toString)
+    val paramNames = jmt.getParameters.getNames.asScalaList.map(_.toString)
     val params = paramNames.foldLeft(Map.empty[String, String]) {
       (map, name) => map.updated(name.toLowerCase, jmt.getParameter(name))
     }

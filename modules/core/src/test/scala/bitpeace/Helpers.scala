@@ -15,7 +15,7 @@ trait Helpers {
   }
 
   def resourceStream(name: String, chunksize: Int = 64 * 1024): Stream[IO, Byte] =
-    io.readInputStream[IO](resource(name), chunksize, Helpers.blockingEc).
+    io.readInputStream[IO](resource(name), chunksize, Helpers.blocker).
       // see https://github.com/functional-streams-for-scala/fs2/issues/1005
       chunks.flatMap(c => Stream.chunk(Chunk.bytes(c.toArray.clone)))
 
@@ -40,4 +40,5 @@ object Helpers {
 
   val blockingEc = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(3))
 
+  val blocker = Blocker.liftExecutionContext(blockingEc)
 }

@@ -1,25 +1,33 @@
 import libs._
 
+val scalacOpts: Seq[String] = Seq(
+  "-encoding", "UTF-8",
+  "-Xfatal-warnings",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:higherKinds",
+  "-Xlint",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-unused-import"
+)
+
 lazy val sharedSettings = Seq(
   name := "bitpeace",
   organization := "com.github.eikek",
   licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
   homepage := Some(url("https://github.com/eikek/bitpeace")),
-//  crossScalaVersions := Seq("2.12.8", `scala-version`),
+  crossScalaVersions := Seq("2.12.8", `scala-version`),
   scalaVersion := `scala-version`,
-  scalacOptions ++= Seq(
-    "-encoding", "UTF-8",
-    "-Xfatal-warnings",
-    "-deprecation",
-    "-feature",
-    "-unchecked",
-    "-language:higherKinds",
-    "-Xlint",
-    "-Yno-adapted-args",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-unused-import"
-  ),
+  scalacOptions := {
+    if (scalaBinaryVersion.value.startsWith("2.13")) {
+      scalacOpts.filter(o => o != "-Yno-adapted-args" && o != "-Ywarn-unused-import")
+    } else {
+      scalacOpts
+    }
+  },
   scalacOptions in (Compile, console) ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains)),
   scalacOptions in (Test) := (scalacOptions in (Compile, console)).value,
   testFrameworks += new TestFramework("minitest.runner.Framework")
@@ -62,10 +70,13 @@ lazy val core = project.in(file("modules/core")).
   settings(Seq(
     name := "bitpeace-core",
     description := "Library for dealing with binary data using doobie.",
-    libraryDependencies ++= coreDeps ++ testDeps
+    libraryDependencies ++= coreDeps ++ testDeps ++ (if (scalaBinaryVersion.value.startsWith("2.13")) Seq(scalaParallelCollections) else Nil)
   ))
 
 lazy val root = project.in(file(".")).
   disablePlugins(ReleasePlugin).
   settings(sharedSettings).
+  settings(
+    skip in publish := true
+  ).
   aggregate(core)
