@@ -10,11 +10,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.effect.IO
 import cats.implicits._
-import doobie._, doobie.implicits._
+import doobie.implicits._
 import scodec.bits.ByteVector
 
 object BitpeaceSpec extends BitpeaceTestSuite {
-  val makeBitpeace: Transactor[IO] => Bitpeace[IO] = xa => Bitpeace(config, xa)
+  def makeBitpeace(p: DbSetup): Bitpeace[IO] =
+    Bitpeace(config, p.xa)
+
+//  override val dbSetup = DB.Postgres
 
   def chunkCount =
     sql"""SELECT count(*) from FileChunk""".query[Int].unique
@@ -258,8 +261,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       "uL7wCy2XxucsUna47LombVa37iCz2RwEaBu2vq//4bxtPpRUDXfyww3E0LtPykG8MCG5SoO7kFmGJYLATDY8pi96l+qdvEFJvlJPRPfonwg=")
   }
 
-  test ("exists") { xa =>
-    val store = makeBitpeace(xa)
+  test ("exists") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
@@ -268,8 +271,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(! store.exists("abc").compile.last.unsafeRunSync.get)
   }
 
-  test ("delete") { xa =>
-    val store = makeBitpeace(xa)
+  test ("delete") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
@@ -277,21 +280,21 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(store.delete(fm.id).compile.last.unsafeRunSync.get)
     assert(!store.delete(fm.id).compile.last.unsafeRunSync.get)
 
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 0)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 0)
   }
 
-  test ("remove partial chunk") { xa =>
-    val store = makeBitpeace(xa)
+  test ("remove partial chunk") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
 
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 4)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 4)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
 
     assert(! store.chunkExistsRemove(fm.id, 2, 8 * 1024).compile.last.unsafeRunSync.get)
     assert(! store.chunkExists(fm.id, 2).compile.last.unsafeRunSync.get)
-    assertEquals(chunkCount.transact(xa).unsafeRunSync, 3)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 3)
   }
 }
