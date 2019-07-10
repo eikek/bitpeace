@@ -19,7 +19,11 @@ trait Bitpeace[F[_]] {
 
   /** Save data in chunks of size `chunkSize` and use a random id.
     */
-  def saveNew(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, fileId: Option[String] = None, time: Instant = Instant.now): Stream[F, FileMeta]
+  def saveNew(data: Stream[F, Byte]
+    , chunkSize: Int
+    , hint: MimetypeHint
+    , fileId: Option[String] = None
+    , time: Instant = Instant.now): Stream[F, FileMeta]
 
   /** Save data in chunks of size `chunkSize` and check for duplicates.
     *
@@ -27,7 +31,10 @@ trait Bitpeace[F[_]] {
     * (no duplicates) or {{{Outcome.Unmodified}}} if no data was
     * written and the duplicate is returned.
     */
-  def save(data: Stream[F, Byte], chunkSize: Int, hint: MimetypeHint, time: Instant = Instant.now): Stream[F, Outcome[FileMeta]] =
+  def save(data: Stream[F, Byte]
+    , chunkSize: Int
+    , hint: MimetypeHint
+    , time: Instant = Instant.now): Stream[F, Outcome[FileMeta]] =
     saveNew(data, chunkSize, hint, None, time).flatMap(makeUnique)
 
   /** “Merge” duplicates.
@@ -55,10 +62,16 @@ trait Bitpeace[F[_]] {
     * is not written, otherwise a [[Outcome#Created]] is returned and
     * the chunk is stored.
     */
-  def addChunk(chunk: FileChunk, chunksize: Int, totalChunks: Int, hint: MimetypeHint): Stream[F, Outcome[FileMeta]]
+  def addChunk(chunk: FileChunk
+    , chunksize: Int
+    , totalChunks: Int
+    , hint: MimetypeHint): Stream[F, Outcome[FileMeta]]
 
   /** Calculates the total number of chunks from the given length and calls [[addChunk]]. */
-  def addChunkByLength(chunk: FileChunk, chunksize: Int, length: Long, hint: MimetypeHint): Stream[F, Outcome[FileMeta]] = {
+  def addChunkByLength(chunk: FileChunk
+    , chunksize: Int
+    , length: Long
+    , hint: MimetypeHint): Stream[F, Outcome[FileMeta]] = {
     val nChunks = length / chunksize + (if (length % chunksize == 0) 0 else 1)
     addChunk(chunk, chunksize, nChunks.toInt, hint)
   }
@@ -128,12 +141,12 @@ object Bitpeace {
         case None =>
           val io = Sync[ConnectionIO]
           val update =
-            stmt.tryUpdateFileId(k.id, k.checksum).flatMap {
+            stmt.tryUpdateFileId(k.id, k.checksum).transact(xa).flatMap {
               case Right(_) =>
-                io.pure[Outcome[FileMeta]](Outcome.Created(k.copy(id = k.checksum)))
+                Sync[F].pure[Outcome[FileMeta]](Outcome.Created(k.copy(id = k.checksum)))
               case Left(sqlex) =>
                 //fix unique constraint error, fail on everything else
-                for {
+                val rem = for {
                   m <- stmt.selectFileMeta(k.checksum).flatMap {
                     case Some(meta) =>
                       io.pure[Outcome[FileMeta]](Outcome.Unmodified(meta))
@@ -145,8 +158,9 @@ object Bitpeace {
                   _ <- stmt.deleteFileMeta(k.id).run
                   _ <- stmt.deleteChunks(k.id).run
                 } yield m
+                rem.transact(xa)
             }
-          Stream.eval(update.transact(xa))
+          Stream.eval(update)
       }
 
     def addChunk(chunk: FileChunk, chunksize: Int, nChunks: Int, hint: MimetypeHint): Stream[F, Outcome[FileMeta]] =
@@ -185,14 +199,13 @@ object Bitpeace {
           }
 
           def tryInsertMeta(fm: FileMeta) = {
-            val io = Sync[ConnectionIO]
-            stmt.insertFileMeta(fm).run.attemptSql.flatMap {
+            stmt.insertFileMeta(fm).run.attemptSql.transact(xa).flatMap {
               case Right(_) =>
-                io.pure(fm)
+                Effect[F].pure(fm)
               case Left(sqlex) =>
-                stmt.selectFileMeta(fm.id).flatMap {
-                  case Some(m) => io.pure(m)
-                  case None => io.raiseError[FileMeta](new Exception(s"Cannot insert or find FileMeta $fm", sqlex))
+                stmt.selectFileMeta(fm.id).transact(xa).flatMap {
+                  case Some(m) => Effect[F].pure(m)
+                  case None => Effect[F].raiseError[FileMeta](new Exception(s"Cannot insert or find FileMeta $fm", sqlex))
                 }
             }
           }
@@ -202,7 +215,7 @@ object Bitpeace {
               saveFileChunk(chunk).map(_ => Outcome.Created(m))
             case None =>
               val initial = FileMeta(chunk.fileId, Instant.now, Mimetype.unknown, 0L, "", nChunks.toInt, chunksize)
-              Stream.eval(tryInsertMeta(initial).transact(xa)).flatMap { meta =>
+              Stream.eval(tryInsertMeta(initial)).flatMap { meta =>
                 saveFileChunk(chunk).map(_ => Outcome.Created(meta))
               }
           }

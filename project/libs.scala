@@ -24,7 +24,11 @@ object libs {
 
   // https://jdbc.postgresql.org/
   // BSD
-  val postgres = "org.postgresql" % "postgresql" % "42.1.4"
+  val postgres = "org.postgresql" % "postgresql" % "42.2.6"
+
+  // https://github.com/MariaDB/mariadb-connector-j
+  // LGPL-2.1
+  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.4.2"
 
   // https://github.com/h2database/h2database
   // MPL 2.0 or EPL 1.0

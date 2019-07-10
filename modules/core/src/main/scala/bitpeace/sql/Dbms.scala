@@ -2,7 +2,7 @@ package bitpeace.sql
 
 import doobie._
 
-trait Dbms {
+sealed trait Dbms {
 
   def blobType: Fragment
 
