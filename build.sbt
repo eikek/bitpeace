@@ -62,7 +62,7 @@ lazy val publishSettings = Seq(
 )
 
 lazy val coreDeps = Seq(`doobie-core`, `scodec-bits`, tika % "provided")
-lazy val testDeps = Seq(minitest, h2, `fs2-io`).map(_ % "test")
+lazy val testDeps = Seq(minitest, h2, postgres, mariadb, `fs2-io`).map(_ % "test")
 
 lazy val core = project.in(file("modules/core")).
   settings(sharedSettings).

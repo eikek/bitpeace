@@ -2,7 +2,6 @@ package bitpeace
 
 import java.util.concurrent.CountDownLatch
 import java.util.UUID
-import java.nio.file.Path
 
 import fs2._
 import scala.concurrent._
@@ -11,12 +10,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import cats.effect.IO
-import doobie._, doobie.implicits._
+import doobie.implicits._
 import scodec.bits.ByteVector
 
 object BitpeaceSpec extends BitpeaceTestSuite {
-  def makeBitpeace(p: (Path, Transactor[IO])): Bitpeace[IO] =
-    Bitpeace(config, p._2)
+  def makeBitpeace(p: DbSetup): Bitpeace[IO] =
+    Bitpeace(config, p.xa)
+
+//  override val dbSetup = DB.Postgres
 
   def chunkCount =
     sql"""SELECT count(*) from FileChunk""".query[Int].unique
@@ -279,7 +280,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(store.delete(fm.id).compile.last.unsafeRunSync.get)
     assert(!store.delete(fm.id).compile.last.unsafeRunSync.get)
 
-    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 0)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 0)
   }
 
   test ("remove partial chunk") { p =>
@@ -288,12 +289,12 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
 
-    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 4)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 4)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
     assert(store.chunkExistsRemove(fm.id, 2, 16 * 1024).compile.last.unsafeRunSync.get)
 
     assert(! store.chunkExistsRemove(fm.id, 2, 8 * 1024).compile.last.unsafeRunSync.get)
     assert(! store.chunkExists(fm.id, 2).compile.last.unsafeRunSync.get)
-    assertEquals(chunkCount.transact(p._2).unsafeRunSync, 3)
+    assertEquals(chunkCount.transact(p.xa).unsafeRunSync, 3)
   }
 }
