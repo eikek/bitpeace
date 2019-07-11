@@ -2,7 +2,7 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.12.5"
+  val `scala-version` = "2.12.8"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -10,17 +10,17 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.3"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.3"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.10.7"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.10.7"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.2"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.2"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.5.4"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.5.4"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
-  val `scodec-bits` = "org.scodec" %% "scodec-bits" % "1.1.5"
+  val `scodec-bits` = "org.scodec" %% "scodec-bits" % "1.1.12"
 
   // https://jdbc.postgresql.org/
   // BSD
@@ -28,11 +28,11 @@ object libs {
 
   // https://github.com/h2database/h2database
   // MPL 2.0 or EPL 1.0
-  val h2 = "com.h2database" % "h2" % "1.4.197"
+  val h2 = "com.h2database" % "h2" % "1.4.199"
 
   // http://tika.apache.org
   // ASL 2.0
-  val tika = "org.apache.tika" % "tika-core" % "1.17"
+  val tika = "org.apache.tika" % "tika-core" % "1.21"
 
   // https://github.com/Log4s/log4s
   // ASL 2.0
@@ -44,5 +44,5 @@ object libs {
 
   // https://github.com/monix/minitest
   // Apache 2.0
-  val minitest = "io.monix" %% "minitest" % "2.1.1"
+  val minitest = "io.monix" %% "minitest" % "2.5.0"
 }
