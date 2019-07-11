@@ -16,4 +16,8 @@ object Dbms {
   val Postgres = new Dbms {
     val blobType = Fragment.const("bytea")
   }
+
+  val MariaDb = new Dbms {
+    val blobType = Fragment.const("mediumblob")
+  }
 }
