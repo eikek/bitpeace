@@ -81,11 +81,10 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
 
-    val out1 = store.saveNew(data, chunksize, MimetypeHint.filename("file.pdf")).compile.last.unsafeRunSync.get
+    val out1: FileMeta = store.saveNew(data, chunksize, MimetypeHint.filename("file.pdf")).compile.last.unsafeRunSync.get
 
-    val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex.map({ case (c, i) =>
-      FileChunk(fileId, i, ByteVector.view(c.toArray))
+      FileChunk("fileabc", i, ByteVector.view(c.toArray))
     }).compile.toVector.unsafeRunSync
 
     val prg = Stream.emits(chunks.permutations.toVector).
@@ -94,16 +93,18 @@ object BitpeaceSpec extends BitpeaceTestSuite {
         val id = UUID.randomUUID.toString
         val all = bs.map(ch => ch.copy(fileId = id))
 
-        val allResults = Stream.emits(all).covary[IO].
+        Stream.emits(all).covary[IO].
           parEvalMapUnordered(4)({ ch =>
             store.addChunk(ch, chunksize, out1.chunks, MimetypeHint.none).compile.last.map(_.get.result)
           }).
           compile.toVector.unsafeRunSync
 
-        val last = allResults.find(_.length > 0).getOrElse(sys.error("No chunk with a length found"))
-        assertEquals(last.checksum, out1.checksum)
-        assertEquals(last.mimetype, out1.mimetype)
-        assertEquals(last.chunks, out1.chunks)
+        val fm = store.get(id).compile.lastOrError.unsafeRunSync.get
+
+        assertEquals(fm.checksum, out1.checksum)
+        assertEquals(fm.mimetype, out1.mimetype)
+        assertEquals(fm.chunks, out1.chunks)
+
         IO(true)
       }
 
@@ -261,8 +262,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       "uL7wCy2XxucsUna47LombVa37iCz2RwEaBu2vq//4bxtPpRUDXfyww3E0LtPykG8MCG5SoO7kFmGJYLATDY8pi96l+qdvEFJvlJPRPfonwg=")
   }
 
-  test ("exists") { xa =>
-    val store = makeBitpeace(xa)
+  test ("exists") { p =>
+    val store = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data = resourceStream("/files/file.pdf", chunksize)
     val Outcome.Created(fm) = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get

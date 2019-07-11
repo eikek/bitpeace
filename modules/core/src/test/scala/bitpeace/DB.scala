@@ -66,4 +66,28 @@ object DB {
 
     val dbms = Dbms.Postgres
   }
+
+  object MariaDB extends DB[IO] {
+    Class.forName("org.mariadb.jdbc.Driver")
+
+    def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
+      val conn = DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
+      val statement = conn.createStatement();
+      statement.executeUpdate(s"CREATE DATABASE $db");
+      conn.close()
+
+      Transactor.fromDriverManager[IO](
+        "org.mariadb.jdbc.Driver", s"jdbc:mariadb://192.168.1.172/$db", "dev", "dev"
+      )
+    }
+
+    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) = IO {
+      val conn = DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
+      val statement = conn.createStatement();
+      statement.executeUpdate(s"DROP DATABASE $db");
+      conn.close()
+    }
+
+    val dbms = Dbms.MariaDb
+  }
 }
