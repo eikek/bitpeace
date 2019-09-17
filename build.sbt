@@ -1,4 +1,6 @@
 import libs._
+import xerial.sbt.Sonatype._
+import ReleaseTransformations._
 
 val scalacOpts: Seq[String] = Seq(
   "-encoding", "UTF-8",
@@ -70,6 +72,12 @@ lazy val publishSettings = Seq(
   sonatypeProjectHosting := Some(GitHubHosting("eikek", "yamusca", "eike.kettner@posteo.de"))
 )
 
+lazy val noPublish = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false
+)
+
 lazy val coreDeps = Seq(`doobie-core`, `scodec-bits`, tika % "provided")
 lazy val testDeps = Seq(minitest, h2, postgres, mariadb, `fs2-io`).map(_ % "test")
 
@@ -85,7 +93,5 @@ lazy val core = project.in(file("modules/core")).
 lazy val root = project.in(file(".")).
   disablePlugins(ReleasePlugin).
   settings(sharedSettings).
-  settings(
-    skip in publish := true
-  ).
+  settings(noPublish).
   aggregate(core)

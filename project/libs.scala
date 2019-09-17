@@ -6,17 +6,17 @@ object libs {
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
-  val `cats-core` = "org.typelevel" %% "cats-core" % "1.4.0"
+  val `cats-core` = "org.typelevel" %% "cats-core" % "2.0.0"
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "1.1.0-M1"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "1.1.0-M1"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "2.0.0"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "2.0.0"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.0-M1"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.0-M1"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.2"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.2"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
@@ -24,11 +24,11 @@ object libs {
 
   // https://jdbc.postgresql.org/
   // BSD
-  val postgres = "org.postgresql" % "postgresql" % "42.2.6"
+  val postgres = "org.postgresql" % "postgresql" % "42.2.8"
 
   // https://github.com/MariaDB/mariadb-connector-j
   // LGPL-2.1
-  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.4.2"
+  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.4.4"
 
   // https://github.com/h2database/h2database
   // MPL 2.0 or EPL 1.0
@@ -36,7 +36,7 @@ object libs {
 
   // http://tika.apache.org
   // ASL 2.0
-  val tika = "org.apache.tika" % "tika-core" % "1.21"
+  val tika = "org.apache.tika" % "tika-core" % "1.22"
 
   // https://github.com/Log4s/log4s
   // ASL 2.0
@@ -48,5 +48,5 @@ object libs {
 
   // https://github.com/monix/minitest
   // Apache 2.0
-  val minitest = "io.monix" %% "minitest" % "2.5.0"
+  val minitest = "io.monix" %% "minitest" % "2.7.0"
 }
