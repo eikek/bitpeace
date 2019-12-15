@@ -7,6 +7,7 @@ import cats.implicits._
 import fs2.{Pipe, RaiseThrowable, Stream}
 import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
+import java.security.MessageDigest
 
 /** A store for binary data.
   *
@@ -180,19 +181,10 @@ object Bitpeace {
             } yield m).transact(xa)).unNoneTerminate
 
           val updateMeta: Stream[F, FileMeta] = {
-            val makeSha = {
-              val shab = sha.newBuilder
-              val length = new java.util.concurrent.atomic.AtomicLong(0)
-              val shaUpdate: Pipe[F, FileChunk, Unit] = _.evalMap(c => F.delay {
-                shab.update(c.chunkData)
-                length.addAndGet(c.chunkLength)
-                ()
-              })
-              getChunks(chunk.fileId).through(shaUpdate).drain ++ Stream.emit((shab.get, length.get))
-            }
-            makeSha.flatMap { case (checksum, length) =>
+            val makeSha = makeChecksum(chunk.fileId, nChunks)
+            makeSha.flatMap { checksum =>
               Stream.eval((for {
-                _ <- stmt.updateFileMeta(chunk.fileId, Instant.now, checksum, length).run
+                _ <- stmt.updateFileMeta(chunk.fileId, Instant.now, checksum).run
                 m <- stmt.selectFileMeta(chunk.fileId)
               } yield m).transact(xa)).unNoneTerminate
             }
@@ -326,5 +318,30 @@ object Bitpeace {
           }
           (shab.update(chunk.chunkData), fm)
       }).map(t => t._2.copy(checksum = t._1.get))
+
+
+    private def makeChecksum(id: String, nChunks: Int): Stream[F, String] = {
+      // This uses one connection per chunk, which is quite bad on
+      // performance, but all other variants I tried (including
+      // fs2.hash, basically all that do `.stream.transact(xa)`) led
+      // to loading everything into memory, blowing the heap
+      // eventually.
+      def make(digest: MessageDigest) =
+        Stream.iterate(0)(_ + 1).
+          take(nChunks.toLong).
+          covary[F].
+          evalMap(n => stmt.selectChunkArray(id, Some(n), Some(1)).unique.
+            map(ch => digest.update(ch)).
+            transact(xa)).
+          compile.drain
+
+      val md = for {
+        dig <- Sync[F].delay(MessageDigest.getInstance("SHA-256"))
+        _  <- make(dig)
+      } yield ByteVector.view(dig.digest()).toHex
+
+      Stream.eval(md)
+    }
   }
+
 }

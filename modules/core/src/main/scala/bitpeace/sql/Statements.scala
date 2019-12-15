@@ -40,6 +40,11 @@ trait Statements[F[_]] {
       .query[FileChunk]
   }
 
+  def selectChunkArray(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Query0[Array[Byte]] = {
+    val q = fr"SELECT chunkData FROM" ++ chunkTable ++ chunkCondition(id, offset, limit)
+    q.query[Array[Byte]]
+  }
+
   def deleteChunks(id: String): Update0 =
     (fr"""DELETE FROM """ ++ chunkTable ++ sql""" WHERE fileId = $id""").update
 
@@ -52,8 +57,13 @@ trait Statements[F[_]] {
     )
     """).update
 
-  def updateFileMeta(id: String, timestamp: Instant, checksum: String, length: Long): Update0 =
-    (fr"UPDATE " ++ metaTable ++ sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = $length WHERE id = $id").update
+  def updateFileMeta(id: String, timestamp: Instant, checksum: String): Update0 = {
+    val len = fr"(SELECT SUM(LENGTH(chunkData)) FROM" ++ chunkTable ++ fr"WHERE fileId = $id)"
+      (fr"UPDATE " ++ metaTable ++
+        sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = " ++
+        len ++
+        fr"WHERE id = $id").update
+  }
 
   def updateMimetype(id: String, mimetype: Mimetype): Update0 =
     (fr"UPDATE " ++ metaTable ++ sql" SET mimetype = $mimetype WHERE id = $id").update
