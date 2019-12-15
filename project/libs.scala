@@ -2,7 +2,7 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.13.0"
+  val `scala-version` = "2.13.1"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -10,13 +10,13 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "2.0.0"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "2.0.0"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "2.1.0"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "2.1.0"
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.2"
-  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.2"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.7"
+  val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.7"
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
@@ -24,19 +24,19 @@ object libs {
 
   // https://jdbc.postgresql.org/
   // BSD
-  val postgres = "org.postgresql" % "postgresql" % "42.2.8"
+  val postgres = "org.postgresql" % "postgresql" % "42.2.9"
 
   // https://github.com/MariaDB/mariadb-connector-j
   // LGPL-2.1
-  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.4.4"
+  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.5.2"
 
   // https://github.com/h2database/h2database
   // MPL 2.0 or EPL 1.0
-  val h2 = "com.h2database" % "h2" % "1.4.199"
+  val h2 = "com.h2database" % "h2" % "1.4.200"
 
   // http://tika.apache.org
   // ASL 2.0
-  val tika = "org.apache.tika" % "tika-core" % "1.22"
+  val tika = "org.apache.tika" % "tika-core" % "1.23"
 
   // https://github.com/Log4s/log4s
   // ASL 2.0
