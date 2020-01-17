@@ -21,7 +21,7 @@ lazy val sharedSettings = Seq(
   organization := "com.github.eikek",
   licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
   homepage := Some(url("https://github.com/eikek/bitpeace")),
-  crossScalaVersions := Seq("2.12.8", `scala-version`),
+  crossScalaVersions := Seq("2.12.10", `scala-version`),
   scalaVersion := `scala-version`,
   scalacOptions := {
     if (scalaBinaryVersion.value.startsWith("2.13")) {

@@ -1,8 +1,8 @@
 sudo: false
 language: scala
 scala:
-  - 2.12.8
-  - 2.13.0
+  - 2.12.10
+  - 2.13.1
 
 jdk:
   - openjdk8
@@ -10,6 +10,7 @@ jdk:
 cache:
   directories:
     - $HOME/.ivy2/cache
+    - $HOME/.coursier/cache
     - $HOME/.sbt/boot
 
 script:
