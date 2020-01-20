@@ -4,10 +4,10 @@ import java.time.Instant
 import cats.effect.{Effect, Sync}
 import cats.data._
 import cats.implicits._
-import fs2.{Pipe, RaiseThrowable, Stream}
+import fs2.{Pipe, RaiseThrowable, Stream, Chunk}
+import fs2.Chunk.ByteVectorChunk
 import doobie._, doobie.implicits._
 import scodec.bits.ByteVector
-import java.security.MessageDigest
 
 /** A store for binary data.
   *
@@ -259,13 +259,12 @@ object Bitpeace {
       _.flatMap { fm =>
         range(fm) match {
           case Validated.Valid(Range.All) =>
-            //logger.trace(s"Get file ${fm.id} (no range)")
-            stmt.selectChunkData(fm.id).stream.transact(xa).
+            stmt.selectChunkData(fm.id).streamWithChunkSize(1).transact(xa).
               through(Range.unchunk)
 
           case Validated.Valid(r: Range.ByteRange) =>
             //logger.trace(s"Get file ${fm.id} for $r")
-            r.select(stmt.selectChunkData(fm.id, r.offset, r.limit).stream.transact(xa))
+            r.select(stmt.selectChunkData(fm.id, r.offset, r.limit).streamWithChunkSize(1).transact(xa))
 
           case Validated.Valid(Range.Empty) =>
             Stream.empty
@@ -296,7 +295,7 @@ object Bitpeace {
       Stream.eval(stmt.insertChunk(fc).run.transact(xa)).map(_ => ())
 
     def getChunks(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Stream[F,FileChunk] =
-      stmt.selectChunks(id, offset, limit).stream.transact(xa)
+      stmt.selectChunks(id, offset, limit).streamWithChunkSize(1).transact(xa)
 
     def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExists(id, chunkNr).transact(xa))
@@ -321,26 +320,14 @@ object Bitpeace {
 
 
     private def makeChecksum(id: String, nChunks: Int): Stream[F, String] = {
-      // This uses one connection per chunk, which is quite bad on
-      // performance, but all other variants I tried (including
-      // fs2.hash, basically all that do `.stream.transact(xa)`) led
-      // to loading everything into memory, blowing the heap
-      // eventually.
-      def make(digest: MessageDigest) =
-        Stream.iterate(0)(_ + 1).
-          take(nChunks.toLong).
-          covary[F].
-          evalMap(n => stmt.selectChunkArray(id, Some(n), Some(1)).unique.
-            map(ch => digest.update(ch)).
-            transact(xa)).
-          compile.drain
-
-      val md = for {
-        dig <- Sync[F].delay(MessageDigest.getInstance("SHA-256"))
-        _  <- make(dig)
-      } yield ByteVector.view(dig.digest()).toHex
-
-      Stream.eval(md)
+      stmt.selectChunkData(id).streamWithChunkSize(1).transact(xa).
+        flatMap(bs => Stream.chunk(ByteVectorChunk(bs))).
+        through(fs2.hash.sha256).
+        chunks.map({
+          case Chunk.ByteVectorChunk(bv) => bv.toHex
+          case cs => ByteVector.view(cs.toArray).toHex
+        }).
+        foldMonoid
     }
   }
 
