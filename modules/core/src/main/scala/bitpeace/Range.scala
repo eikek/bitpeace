@@ -1,7 +1,7 @@
 package bitpeace
 
 import cats.data.Ior
-import fs2.{Pipe, Stream, Chunk}
+import fs2.{Chunk, Pipe, Stream}
 import scodec.bits.ByteVector
 
 /**
@@ -12,29 +12,26 @@ import scodec.bits.ByteVector
 sealed trait Range
 
 object Range {
-  case object All extends Range
+  case object All   extends Range
   case object Empty extends Range
 
   case class ByteRange(range: Ior[(Int, Int), (Int, Int)]) extends Range {
     def offset: Option[Int] = range.left.map(_._1)
-    def dropL: Option[Int] = range.left.map(_._2).filter(_ > 0)
-    def limit: Option[Int] = range.right.map(_._1)
-    def dropR: Option[Int] = range.right.map(_._2).filter(_ > 0)
-    def isEmpty = limit.exists(_ == 0)
+    def dropL: Option[Int]  = range.left.map(_._2).filter(_ > 0)
+    def limit: Option[Int]  = range.right.map(_._1)
+    def dropR: Option[Int]  = range.right.map(_._2).filter(_ > 0)
+    def isEmpty             = limit.exists(_ == 0)
 
-    def select[F[_]](s: Stream[F, ByteVector]): Stream[F, Byte] = {
-      s.through(dropLeft(this)).
-        through(dropRight(this)).
-        through(unchunk)
-    }
+    def select[F[_]](s: Stream[F, ByteVector]): Stream[F, Byte] =
+      s.through(dropLeft(this)).through(dropRight(this)).through(unchunk)
   }
 
   def apply(range: Ior[(Int, Int), (Int, Int)]): Range =
     ByteRange(range)
 
-  def dropRight[F[_]](r: Range): Pipe[F,ByteVector,ByteVector] =
+  def dropRight[F[_]](r: Range): Pipe[F, ByteVector, ByteVector] =
     r match {
-      case All => identity
+      case All   => identity
       case Empty => identity
       case br: ByteRange =>
         br.dropR match {
@@ -44,9 +41,9 @@ object Range {
         }
     }
 
-  def dropLeft[F[_]](r: Range): Pipe[F,ByteVector,ByteVector] =
+  def dropLeft[F[_]](r: Range): Pipe[F, ByteVector, ByteVector] =
     r match {
-      case All => identity
+      case All   => identity
       case Empty => identity
       case br: ByteRange =>
         br.dropL match {

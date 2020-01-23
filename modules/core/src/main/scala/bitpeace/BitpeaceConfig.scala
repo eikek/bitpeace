@@ -4,10 +4,10 @@ import java.util.UUID
 import cats.effect.Sync
 
 case class BitpeaceConfig[F[_]](
-  metaTable: String
-    , chunkTable: String
-    , mimetypeDetect: MimetypeDetect
-    , randomIdGen: F[String]
+    metaTable: String,
+    chunkTable: String,
+    mimetypeDetect: MimetypeDetect,
+    randomIdGen: F[String]
 )
 
 object BitpeaceConfig {

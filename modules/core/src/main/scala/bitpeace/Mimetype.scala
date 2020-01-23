@@ -5,10 +5,7 @@ import cats.data.Validated
 import Compat._
 
 /** Utility around `javax.activation.Mimetype'. */
-case class Mimetype(
-  primary: String,
-  sub: String,
-  params: Map[String, String] = Map.empty) {
+case class Mimetype(primary: String, sub: String, params: Map[String, String] = Map.empty) {
 
   /** Return {{{other}}} if this is an unknown mimetype. */
   def orElse(other: Mimetype): Mimetype =
@@ -31,20 +28,20 @@ case class Mimetype(
     baseType == other.baseType
 
   /** Renders this mimetype into its string representation. */
-  def asString = {
-    params.foldLeft(baseType) { case (s, (name, value)) =>
-      s + s"; $name=$value"
+  def asString =
+    params.foldLeft(baseType) {
+      case (s, (name, value)) =>
+        s + s"; $name=$value"
     }
-  }
 }
 
 object Mimetype {
   val `application/octet-stream` = Mimetype("application", "octet-stream")
-  val unknown = `application/octet-stream`
-  val `application/pdf` = Mimetype("application", "pdf")
-  val `text/html` = Mimetype("text", "html")
-  val `application/x-xz` = Mimetype("application", "x-xz")
-  val `application/zip` = Mimetype("application", "zip")
+  val unknown                    = `application/octet-stream`
+  val `application/pdf`          = Mimetype("application", "pdf")
+  val `text/html`                = Mimetype("text", "html")
+  val `application/x-xz`         = Mimetype("application", "x-xz")
+  val `application/zip`          = Mimetype("application", "zip")
 
   def apply(primary: String, subtype: String): Mimetype =
     normalize(new JMimeType(primary, subtype).asScala)
@@ -54,8 +51,8 @@ object Mimetype {
 
   def fromJava(jmt: JMimeType): Mimetype = {
     val paramNames = jmt.getParameters.getNames.asScalaList.map(_.toString)
-    val params = paramNames.foldLeft(Map.empty[String, String]) {
-      (map, name) => map.updated(name.toLowerCase, jmt.getParameter(name))
+    val params = paramNames.foldLeft(Map.empty[String, String]) { (map, name) =>
+      map.updated(name.toLowerCase, jmt.getParameter(name))
     }
     Mimetype(jmt.getPrimaryType, jmt.getSubType, params)
   }

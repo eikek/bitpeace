@@ -1,11 +1,11 @@
 package bitpeace
 
 case class MimetypeHint(
-  filename: Option[String]
-    , advertised: Option[String]
+    filename: Option[String],
+    advertised: Option[String]
 ) {
 
-  def withFilename(name: String) = copy(filename = Some(name))
+  def withFilename(name: String)       = copy(filename = Some(name))
   def withAdvertised(mimetype: String) = copy(advertised = Some(mimetype))
 }
 

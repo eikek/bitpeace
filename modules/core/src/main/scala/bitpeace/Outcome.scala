@@ -10,13 +10,13 @@ sealed trait Outcome[A] {
 object Outcome {
   case class Unmodified[A](result: A) extends Outcome[A] {
     def map[B](f: A => B) = Unmodified(f(result))
-    val isUnmodified = true
-    val isCreated = false
+    val isUnmodified      = true
+    val isCreated         = false
   }
   case class Created[A](result: A) extends Outcome[A] {
     def map[B](f: A => B) = Created(f(result))
-    def isUnmodified = false
-    def isCreated = true
+    def isUnmodified      = false
+    def isCreated         = true
   }
 
   def unapply[A](o: Outcome[A]): Option[A] = Some(o.result)

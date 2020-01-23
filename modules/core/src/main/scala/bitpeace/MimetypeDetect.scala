@@ -15,7 +15,7 @@ trait MimetypeDetect {
 
 object MimetypeDetect {
   val none = new MimetypeDetect {
-    def fromBytes(bv: ByteVector, hint: MimetypeHint): Mimetype = Mimetype.unknown
+    def fromBytes(bv: ByteVector, hint: MimetypeHint): Mimetype       = Mimetype.unknown
     def fromName(filename: String, advertised: String = ""): Mimetype = Mimetype.unknown
   }
 }

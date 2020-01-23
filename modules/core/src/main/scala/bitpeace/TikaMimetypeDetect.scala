@@ -14,18 +14,17 @@ object TikaMimetypeDetect extends MimetypeDetect {
   private val tika = new TikaConfig().getDetector
 
   private def convert(mt: MediaType): Mimetype =
-    Option(mt).map(_.toString).
-      map(Mimetype.parse).
-      flatMap(_.toOption).
-      map(normalize).
-      getOrElse(Mimetype.unknown)
+    Option(mt)
+      .map(_.toString)
+      .map(Mimetype.parse)
+      .flatMap(_.toOption)
+      .map(normalize)
+      .getOrElse(Mimetype.unknown)
 
   private def makeMetadata(hint: MimetypeHint): Metadata = {
     val md = new Metadata
-    hint.filename.
-      foreach(md.set(TikaMetadataKeys.RESOURCE_NAME_KEY, _))
-    hint.advertised.
-      foreach(md.set(HttpHeaders.CONTENT_TYPE, _))
+    hint.filename.foreach(md.set(TikaMetadataKeys.RESOURCE_NAME_KEY, _))
+    hint.advertised.foreach(md.set(HttpHeaders.CONTENT_TYPE, _))
     md
   }
 
@@ -35,11 +34,11 @@ object TikaMimetypeDetect extends MimetypeDetect {
     case _ => in
   }
 
-  def fromBytes(bv: ByteVector, hint: MimetypeHint): Mimetype = {
+  def fromBytes(bv: ByteVector, hint: MimetypeHint): Mimetype =
     convert(tika.detect(new java.io.ByteArrayInputStream(bv.toArray), makeMetadata(hint)))
-  }
 
-  def fromName(filename: String, advertised: String = ""): Mimetype = {
-    convert(tika.detect(null, makeMetadata(MimetypeHint.filename(filename).withAdvertised(advertised))))
-  }
+  def fromName(filename: String, advertised: String = ""): Mimetype =
+    convert(
+      tika.detect(null, makeMetadata(MimetypeHint.filename(filename).withAdvertised(advertised)))
+    )
 }

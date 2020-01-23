@@ -14,15 +14,13 @@ trait Statements[F[_]] {
   def insertChunk(ch: FileChunk): Update0 =
     (fr"""INSERT INTO """ ++ chunkTable ++
       fr"""(fileId,chunkNr,chunkLength,chunkData) VALUES """ ++
-      sql"""(${ch.fileId}, ${ch.chunkNr}, ${ch.chunkLength}, ${ch.chunkData})""")
-      .update
+      sql"""(${ch.fileId}, ${ch.chunkNr}, ${ch.chunkLength}, ${ch.chunkData})""").update
 
-  def tryUpdateFileId(old: String, id: String) = {
+  def tryUpdateFileId(old: String, id: String) =
     for {
       m <- (fr"""UPDATE """ ++ chunkTable ++ sql""" SET fileId = $id WHERE fileId = $old""").update.run.attemptSql
       n <- (fr"UPDATE " ++ metaTable ++ sql" SET id = $id WHERE id = $old").update.run.attemptSql
     } yield n |+| m
-  }
 
   private def chunkCondition(id: String, offset: Option[Int], limit: Option[Int]) = {
     val min = offset.map(n => fr" AND chunkNr >= $n").getOrElse(fr"")
@@ -30,17 +28,30 @@ trait Statements[F[_]] {
     sql" WHERE fileId = $id" ++ min ++ max ++ fr" ORDER BY chunkNr ASC"
   }
 
-  def selectChunkData(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Query0[ByteVector] = {
+  def selectChunkData(
+      id: String,
+      offset: Option[Int] = None,
+      limit: Option[Int] = None
+  ): Query0[ByteVector] =
     (fr"""SELECT chunkData FROM """ ++ chunkTable ++ chunkCondition(id, offset, limit))
       .query[ByteVector]
-  }
 
-  def selectChunks(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Query0[FileChunk] = {
-    (fr"""SELECT fileId, chunkNr, chunkData FROM """ ++ chunkTable ++ chunkCondition(id, offset, limit))
-      .query[FileChunk]
-  }
+  def selectChunks(
+      id: String,
+      offset: Option[Int] = None,
+      limit: Option[Int] = None
+  ): Query0[FileChunk] =
+    (fr"""SELECT fileId, chunkNr, chunkData FROM """ ++ chunkTable ++ chunkCondition(
+      id,
+      offset,
+      limit
+    )).query[FileChunk]
 
-  def selectChunkArray(id: String, offset: Option[Int] = None, limit: Option[Int] = None): Query0[Array[Byte]] = {
+  def selectChunkArray(
+      id: String,
+      offset: Option[Int] = None,
+      limit: Option[Int] = None
+  ): Query0[Array[Byte]] = {
     val q = fr"SELECT chunkData FROM" ++ chunkTable ++ chunkCondition(id, offset, limit)
     q.query[Array[Byte]]
   }
@@ -59,10 +70,10 @@ trait Statements[F[_]] {
 
   def updateFileMeta(id: String, timestamp: Instant, checksum: String): Update0 = {
     val len = fr"(SELECT SUM(LENGTH(chunkData)) FROM" ++ chunkTable ++ fr"WHERE fileId = $id)"
-      (fr"UPDATE " ++ metaTable ++
-        sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = " ++
-        len ++
-        fr"WHERE id = $id").update
+    (fr"UPDATE " ++ metaTable ++
+      sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = " ++
+      len ++
+      fr"WHERE id = $id").update
   }
 
   def updateMimetype(id: String, mimetype: Mimetype): Update0 =
@@ -71,25 +82,24 @@ trait Statements[F[_]] {
   def fileExists(id: String): ConnectionIO[Option[String]] =
     (fr"""SELECT id FROM """ ++ metaTable ++ sql""" WHERE id = $id""").query[String].option
 
-  def chunkExists(id: String, chunkNr: Long): ConnectionIO[Boolean] = {
-    (fr"SELECT count(*) FROM " ++ chunkTable ++ sql"as fc WHERE fc.fileId = $id AND fc.chunknr = $chunkNr").
-      query[Int].
-      unique.
-      map(_ > 0)
-  }
+  def chunkExists(id: String, chunkNr: Long): ConnectionIO[Boolean] =
+    (fr"SELECT count(*) FROM " ++ chunkTable ++ sql"as fc WHERE fc.fileId = $id AND fc.chunknr = $chunkNr")
+      .query[Int]
+      .unique
+      .map(_ > 0)
 
-  def chunkExistsRemove(id: String, chunkNr: Long, size: Long) = {
+  def chunkExistsRemove(id: String, chunkNr: Long, size: Long) =
     for {
       b <- chunkExists(id, chunkNr)
       f <- if (b) chunkLengthCheckOrRemove(id, chunkNr, size) else b.pure[ConnectionIO]
     } yield f
-  }
 
   def chunkLengthCheckOrRemove(fileId: String, chunkNr: Long, chunkLength: Long) = {
     val query = fr"SELECT count(*) FROM" ++ chunkTable ++
       fr"WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != ${chunkLength}"
 
-    val delete = (fr"DELETE FROM" ++ chunkTable ++ fr"WHERE fileId = $fileId AND chunknr = $chunkNr").update.run
+    val delete =
+      (fr"DELETE FROM" ++ chunkTable ++ fr"WHERE fileId = $fileId AND chunknr = $chunkNr").update.run
 
     for {
       n <- query.query[Int].unique
@@ -97,14 +107,12 @@ trait Statements[F[_]] {
     } yield n == 0
   }
 
-
   def selectFileMeta(id: String): ConnectionIO[Option[FileMeta]] =
     (fr"""SELECT id, timestamp, mimetype, length, checksum, chunks, chunksize FROM """ ++
       metaTable ++
       sql""" WHERE id = $id""")
       .query[FileMeta]
       .option
-
 
   def count: ConnectionIO[Long] =
     (fr"SELECT count(*) from" ++ metaTable).query[Long].unique
@@ -135,7 +143,7 @@ trait Statements[F[_]] {
     );""").update
 
   private def chunkTable = Fragment.const(config.chunkTable)
-  private def metaTable = Fragment.const(config.metaTable)
+  private def metaTable  = Fragment.const(config.metaTable)
 }
 
 object Statements {
