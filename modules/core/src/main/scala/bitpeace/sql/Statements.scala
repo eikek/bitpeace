@@ -86,27 +86,28 @@ trait Statements[F[_]] {
   }
 
   def chunkLengthCheckOrRemove(fileId: String, chunkNr: Long, chunkLength: Long) = {
-    val query = sql"""SELECT count(*) FROM FileChunk
-                      WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != ${chunkLength}""".
-      query[Int].unique
+    val query = fr"SELECT count(*) FROM" ++ chunkTable ++
+      fr"WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != ${chunkLength}"
 
-    val delete = sql"""DELETE FROM FileChunk WHERE fileId = $fileId AND chunknr = $chunkNr""".update.run
+    val delete = (fr"DELETE FROM" ++ chunkTable ++ fr"WHERE fileId = $fileId AND chunknr = $chunkNr").update.run
 
     for {
-      n <- query
+      n <- query.query[Int].unique
       _ <- if (n == 1) delete else 0.pure[ConnectionIO]
     } yield n == 0
   }
 
 
   def selectFileMeta(id: String): ConnectionIO[Option[FileMeta]] =
-    (fr"""SELECT id, timestamp, mimetype, length, checksum, chunks, chunksize FROM """ ++ metaTable ++ sql""" WHERE id = $id""")
+    (fr"""SELECT id, timestamp, mimetype, length, checksum, chunks, chunksize FROM """ ++
+      metaTable ++
+      sql""" WHERE id = $id""")
       .query[FileMeta]
       .option
 
 
   def count: ConnectionIO[Long] =
-    sql"""SELECT count(*) from FileMeta""".query[Long].unique
+    (fr"SELECT count(*) from" ++ metaTable).query[Long].unique
 
   def countChunks(id: String): ConnectionIO[Long] =
     (fr"SELECT count(*) FROM " ++ chunkTable ++ sql" WHERE fileId = $id").query[Long].unique
