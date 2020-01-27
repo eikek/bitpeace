@@ -28,7 +28,7 @@ object libs {
 
   // https://github.com/MariaDB/mariadb-connector-j
   // LGPL-2.1
-  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.5.3"
+  val mariadb = "org.mariadb.jdbc" % "mariadb-java-client" % "2.5.4"
 
   // https://github.com/h2database/h2database
   // MPL 2.0 or EPL 1.0
