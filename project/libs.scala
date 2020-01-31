@@ -20,7 +20,7 @@ object libs {
 
   // https://github.com/scodec/scodec-bits
   // 3-clause BSD
-  val `scodec-bits` = "org.scodec" %% "scodec-bits" % "1.1.12"
+  val `scodec-bits` = "org.scodec" %% "scodec-bits" % "1.1.13"
 
   // https://jdbc.postgresql.org/
   // BSD
