@@ -33,7 +33,7 @@ lazy val sharedSettings = Seq(
   scalacOptions in (Compile, console) ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains)),
   scalacOptions in (Test) := (scalacOptions in (Compile, console)).value,
   testFrameworks += new TestFramework("minitest.runner.Framework")
-)
+) ++ publishSettings
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
@@ -91,7 +91,6 @@ lazy val core = project.in(file("modules/core")).
   ))
 
 lazy val root = project.in(file(".")).
-  disablePlugins(ReleasePlugin).
   settings(sharedSettings).
   settings(noPublish).
   aggregate(core)
