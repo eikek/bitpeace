@@ -1,5 +1,9 @@
 # bitpeace – Handle binary data with doobie
 
+<a href="https://travis-ci.org/eikek/bitpeace"><img src="https://travis-ci.org/eikek/bitpeace.svg"></a>
+<a href="https://maven-badges.herokuapp.com/maven-central/com.github.eikek/bitpeace-core_2.12"><img src="https://img.shields.io/maven-central/v/com.github.eikek/bitpeace-core_2.12.svg"></a>
+[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
+
 This is a library to store and load binary data based on
 [doobie](https://github.com/tpolecat/doobie).
 
@@ -14,7 +18,7 @@ Bitpeace is available from maven central for scala 2.12 and from
 version 0.4 for scala 2.13.
 
 ```
-"com.github.eikek" %% "bitpeace-core" % "0.4.0"
+"com.github.eikek" %% "bitpeace-core" % "0.4.4"
 ```
 
 | Bitpeace Version | Doobie Version | FS2 Version |
@@ -22,15 +26,14 @@ version 0.4 for scala 2.13.
 | 0.1.0            | 0.4.x          | 0.9.x       |
 | 0.2.x            | 0.5.x          | 0.10.x      |
 | 0.3.x            | 0.7.x          | 1.0.x       |
-| 0.4.x            | 0.8.x          | 2.0.x       |
+| 0.4.x            | 0.8.x          | 2.x         |
 
 
 ## Dependencies
 
 It obviously depends on [doobie](https://github.com/tpolecat/doobie)
-(the
-[cats](http://typelevel.org/cats/)/[fs2](https://github.com/functional-streams-for-scala/fs2)
-version).
+and therefore on [cats](http://typelevel.org/cats/) and
+[fs2](https://github.com/functional-streams-for-scala/fs2).
 
 While trying to minimize further dependencies, I choose to include two
 more:
@@ -38,7 +41,8 @@ more:
 - `tika-core` (optional), Apache 2.0 License, http://tika.apache.org
 - `scodec-bits`, BSD-3-Clause, https://github.com/scodec/scodec-bits
 
-Both dependencies are itself “dependency-free”.
+Both dependencies are itself “dependency-free”. The `tika-core` is
+marked as optional.
 
 Since mimetype detection belongs to “handling binaries”, I wanted to
 include it in this library. Tika is used for mimetype detection by
