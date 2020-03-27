@@ -31,7 +31,7 @@ case class Mimetype(primary: String, sub: String, params: Map[String, String] = 
   def asString =
     params.foldLeft(baseType) {
       case (s, (name, value)) =>
-        s + s"; $name=$value"
+        s + s"""; $name="$value""""
     }
 }
 
