@@ -21,9 +21,7 @@ object RangeDef {
     val flen      = fm.length
     val chunkSize = fm.chunksize
 
-    val left = offset.map { off =>
-      ((off / chunkSize).toInt, (off % chunkSize).toInt)
-    }
+    val left = offset.map(off => ((off / chunkSize).toInt, (off % chunkSize).toInt))
     val right = count.flatMap { clen =>
       val dropL = left.map(_._2).orEmpty
       val rest  = (offset.orEmpty + clen) % chunkSize

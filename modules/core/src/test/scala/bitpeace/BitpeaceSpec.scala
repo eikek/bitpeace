@@ -131,13 +131,13 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       Stream
         .emits(all)
         .covary[IO]
-        .parEvalMapUnordered(4)({ ch =>
+        .parEvalMapUnordered(4) { ch =>
           store
             .addChunk(ch, chunksize, out1.chunks, MimetypeHint.none)
             .compile
             .last
             .map(_.get.result)
-        })
+        }
         .compile
         .toVector
         .unsafeRunSync
