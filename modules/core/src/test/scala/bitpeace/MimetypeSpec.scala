@@ -15,4 +15,11 @@ object MimetypeSpec extends SimpleTestSuite {
     val mtStr2 = mt.asString
     assertEquals(mtStr2, mtStr)
   }
+
+  test("matches") {
+    val textAll = Mimetype.text("*")
+    assert(textAll.matches(Mimetype.`text/html`))
+    assert(Mimetype.`text/html`.matches(Mimetype.`text/html`))
+    assert(!textAll.matches(Mimetype.`application/pdf`))
+  }
 }

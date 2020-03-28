@@ -27,6 +27,10 @@ case class Mimetype(primary: String, sub: String, params: Map[String, String] = 
   def baseEqual(other: Mimetype): Boolean =
     baseType == other.baseType
 
+  def matches(other: Mimetype): Boolean =
+    primary == other.primary &&
+      (sub == other.sub || sub == "*")
+
   /** Renders this mimetype into its string representation. */
   def asString =
     params.foldLeft(baseType) {
@@ -42,6 +46,12 @@ object Mimetype {
   val `text/html`                = Mimetype("text", "html")
   val `application/x-xz`         = Mimetype("application", "x-xz")
   val `application/zip`          = Mimetype("application", "zip")
+
+  def application(sub: String): Mimetype =
+    Mimetype("application", sub)
+
+  def text(sub: String): Mimetype =
+    Mimetype("text", sub)
 
   def apply(primary: String, subtype: String): Mimetype =
     normalize(new JMimeType(primary, subtype).asScala)
