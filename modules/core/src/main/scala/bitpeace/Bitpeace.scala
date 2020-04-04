@@ -294,7 +294,6 @@ object Bitpeace {
             mkData(fm.id, fm.chunks, 0).through(Range.unchunk)
 
           case Validated.Valid(r: Range.ByteRange) =>
-            //logger.trace(s"Get file ${fm.id} for $r")
             mkData(
               fm.id,
               r.limit.getOrElse(fm.chunks - r.offset.getOrElse(0)),
@@ -302,7 +301,6 @@ object Bitpeace {
             ).through(Range.dropLeft(r)).through(Range.dropRight(r)).through(Range.unchunk)
 
           case Validated.Invalid(msg) =>
-            //logger.trace(s"Get file ${fm.id} (no range)")
             Stream.raiseError(new Exception(s"Invalid range: $msg"))
 
           case Validated.Valid(Range.Empty) =>
@@ -318,7 +316,6 @@ object Bitpeace {
             stmt.selectChunkData(fm.id).streamWithChunkSize(1).transact(xa).through(Range.unchunk)
 
           case Validated.Valid(r: Range.ByteRange) =>
-            //logger.trace(s"Get file ${fm.id} for $r")
             r.select(
               stmt.selectChunkData(fm.id, r.offset, r.limit).streamWithChunkSize(1).transact(xa)
             )

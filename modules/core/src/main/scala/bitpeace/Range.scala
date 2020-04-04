@@ -61,5 +61,5 @@ object Range {
     s => s.dropLast ++ s.last.unNoneTerminate.map(f)
 
   def unchunk[F[_]]: Pipe[F, ByteVector, Byte] =
-    _.flatMap(bv => Stream.chunk(Chunk.bytes(bv.toArray)))
+    _.flatMap(bv => Stream.chunk(Chunk.byteVector(bv)))
 }
