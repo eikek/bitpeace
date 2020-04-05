@@ -15,7 +15,7 @@ object libs {
 
   // https://github.com/tpolecat/doobie
   // MIT
-  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.8.8"
+  val `doobie-core` = "org.tpolecat" %% "doobie-core" % "0.9.0"
   val `doobie-hikari` = "org.tpolecat" %% "doobie-hikari" % "0.8.8"
 
   // https://github.com/scodec/scodec-bits
