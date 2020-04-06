@@ -24,7 +24,13 @@ trait Statements[F[_]] {
 
   private def chunkCondition(id: String, offset: Option[Int], limit: Option[Int]) = {
     val min = offset.map(n => fr" AND chunkNr >= $n").getOrElse(fr"")
-    val max = limit.map(n => fr" AND chunkNr < ${offset.map(_ + n).getOrElse(n)}").getOrElse(fr"")
+    val max =
+      limit.map(a => offset.map(b => a + b).getOrElse(a)) match {
+        case Some(n) =>
+          fr" AND chunkNr < $n"
+        case None =>
+          fr""
+      }
     sql" WHERE fileId = $id" ++ min ++ max ++ fr" ORDER BY chunkNr ASC"
   }
 
