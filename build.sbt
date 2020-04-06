@@ -21,8 +21,8 @@ lazy val sharedSettings = Seq(
   organization := "com.github.eikek",
   licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
   homepage := Some(url("https://github.com/eikek/bitpeace")),
-  crossScalaVersions := Seq("2.12.10", `scala-version`),
-  scalaVersion := `scala-version`,
+  crossScalaVersions := Seq(scala212, scala213),
+  scalaVersion := scala213,
   scalacOptions := {
     if (scalaBinaryVersion.value.startsWith("2.13")) {
       scalacOpts.filter(o => o != "-Yno-adapted-args" && o != "-Ywarn-unused-import")
@@ -78,8 +78,8 @@ lazy val noPublish = Seq(
   publishArtifact := false
 )
 
-lazy val coreDeps = Seq(`doobie-core`, `scodec-bits`, tika % "provided")
-lazy val testDeps = Seq(minitest, h2, postgres, mariadb, `fs2-io`).map(_ % "test")
+lazy val coreDeps = Seq(doobieCore, scodecBits, tika % "provided")
+lazy val testDeps = Seq(minitest, h2, postgres, mariadb, fs2Io).map(_ % "test")
 
 lazy val core = project.in(file("modules/core")).
   settings(sharedSettings).
