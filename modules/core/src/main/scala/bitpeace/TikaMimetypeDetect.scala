@@ -39,6 +39,9 @@ object TikaMimetypeDetect extends MimetypeDetect {
 
   def fromName(filename: String, advertised: String = ""): Mimetype =
     convert(
-      tika.detect(null, makeMetadata(MimetypeHint.filename(filename).withAdvertised(advertised)))
+      tika.detect(
+        null,
+        makeMetadata(MimetypeHint.filename(filename).withAdvertised(advertised))
+      )
     )
 }

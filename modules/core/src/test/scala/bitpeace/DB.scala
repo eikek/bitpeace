@@ -52,7 +52,8 @@ object DB {
     Class.forName("org.postgresql.Driver")
 
     def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
-      val conn      = DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
+      val conn =
+        DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
       val statement = conn.createStatement();
       statement.executeUpdate(s"CREATE DATABASE $db");
       conn.close()
@@ -66,7 +67,8 @@ object DB {
     }
 
     def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) = IO {
-      val conn      = DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
+      val conn =
+        DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
       val statement = conn.createStatement();
       statement.executeUpdate(s"DROP DATABASE $db");
       conn.close()
@@ -79,7 +81,8 @@ object DB {
     Class.forName("org.mariadb.jdbc.Driver")
 
     def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
-      val conn      = DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
+      val conn =
+        DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
       val statement = conn.createStatement();
       statement.executeUpdate(s"CREATE DATABASE $db");
       conn.close()
@@ -93,7 +96,8 @@ object DB {
     }
 
     def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) = IO {
-      val conn      = DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
+      val conn =
+        DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
       val statement = conn.createStatement();
       statement.executeUpdate(s"DROP DATABASE $db");
       conn.close()

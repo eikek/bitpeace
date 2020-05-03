@@ -75,7 +75,8 @@ trait Statements[F[_]] {
     """).update
 
   def updateFileMeta(id: String, timestamp: Instant, checksum: String): Update0 = {
-    val len = fr"(SELECT SUM(LENGTH(chunkData)) FROM" ++ chunkTable ++ fr"WHERE fileId = $id)"
+    val len =
+      fr"(SELECT SUM(LENGTH(chunkData)) FROM" ++ chunkTable ++ fr"WHERE fileId = $id)"
     (fr"UPDATE " ++ metaTable ++
       sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = " ++
       len ++
@@ -86,7 +87,9 @@ trait Statements[F[_]] {
     (fr"UPDATE " ++ metaTable ++ sql" SET mimetype = $mimetype WHERE id = $id").update
 
   def fileExists(id: String): ConnectionIO[Option[String]] =
-    (fr"""SELECT id FROM """ ++ metaTable ++ sql""" WHERE id = $id""").query[String].option
+    (fr"""SELECT id FROM """ ++ metaTable ++ sql""" WHERE id = $id""")
+      .query[String]
+      .option
 
   def chunkExists(id: String, chunkNr: Long): ConnectionIO[Boolean] =
     (fr"SELECT count(*) FROM " ++ chunkTable ++ sql"as fc WHERE fc.fileId = $id AND fc.chunknr = $chunkNr")
@@ -124,7 +127,9 @@ trait Statements[F[_]] {
     (fr"SELECT count(*) from" ++ metaTable).query[Long].unique
 
   def countChunks(id: String): ConnectionIO[Long] =
-    (fr"SELECT count(*) FROM " ++ chunkTable ++ sql" WHERE fileId = $id").query[Long].unique
+    (fr"SELECT count(*) FROM " ++ chunkTable ++ sql" WHERE fileId = $id")
+      .query[Long]
+      .unique
 
   def createMetaTable(db: Dbms): Update0 = (fr"""
     CREATE TABLE """ ++ metaTable ++ fr""" (

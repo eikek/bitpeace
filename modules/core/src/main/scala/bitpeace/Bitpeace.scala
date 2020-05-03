@@ -149,10 +149,14 @@ object Bitpeace {
           .through(rechunk(chunkSize))
           .zipWithIndex
           .map(t => FileChunk(id, t._2, t._1))
-          .flatMap(ch => Stream.eval(F.map(stmt.insertChunk(ch).run.transact(xa))(_ => ch)))
+          .flatMap(ch =>
+            Stream.eval(F.map(stmt.insertChunk(ch).run.transact(xa))(_ => ch))
+          )
           .through(accumulateKey(time, chunkSize, hint))
           .map(key => key.copy(id = id))
-          .flatMap(key => Stream.eval(stmt.insertFileMeta(key).run.transact(xa)).map(_ => key))
+          .flatMap(key =>
+            Stream.eval(stmt.insertFileMeta(key).run.transact(xa)).map(_ => key)
+          )
       }
 
     def makeUnique(k: FileMeta): Stream[F, Outcome[FileMeta]] =
@@ -166,7 +170,8 @@ object Bitpeace {
             val update =
               stmt.tryUpdateFileId(k.id, k.checksum).transact(xa).flatMap {
                 case Right(_) =>
-                  Sync[F].pure[Outcome[FileMeta]](Outcome.Created(k.copy(id = k.checksum)))
+                  Sync[F]
+                    .pure[Outcome[FileMeta]](Outcome.Created(k.copy(id = k.checksum)))
                 case Left(sqlex) =>
                   //fix unique constraint error, fail on everything else
                   val rem = for {
@@ -285,7 +290,10 @@ object Bitpeace {
         if (chunksLeft == 0) Stream.empty
         else
           Stream.eval(
-            stmt.selectChunkData(id, Some(chunk).filter(_ > 0), Some(1)).unique.transact(xa)
+            stmt
+              .selectChunkData(id, Some(chunk).filter(_ > 0), Some(1))
+              .unique
+              .transact(xa)
           ) ++ mkData(id, chunksLeft - 1, chunk + 1)
 
       _.flatMap { fm =>
@@ -298,7 +306,9 @@ object Bitpeace {
               fm.id,
               r.limit.getOrElse(fm.chunks - r.offset.getOrElse(0)),
               r.offset.getOrElse(0)
-            ).through(Range.dropLeft(r)).through(Range.dropRight(r)).through(Range.unchunk)
+            ).through(Range.dropLeft(r))
+              .through(Range.dropRight(r))
+              .through(Range.unchunk)
 
           case Validated.Invalid(msg) =>
             Stream.raiseError(new Exception(s"Invalid range: $msg"))
@@ -313,11 +323,18 @@ object Bitpeace {
       _.flatMap { fm =>
         range(fm) match {
           case Validated.Valid(Range.All) =>
-            stmt.selectChunkData(fm.id).streamWithChunkSize(1).transact(xa).through(Range.unchunk)
+            stmt
+              .selectChunkData(fm.id)
+              .streamWithChunkSize(1)
+              .transact(xa)
+              .through(Range.unchunk)
 
           case Validated.Valid(r: Range.ByteRange) =>
             r.select(
-              stmt.selectChunkData(fm.id, r.offset, r.limit).streamWithChunkSize(1).transact(xa)
+              stmt
+                .selectChunkData(fm.id, r.offset, r.limit)
+                .streamWithChunkSize(1)
+                .transact(xa)
             )
 
           case Validated.Valid(Range.Empty) =>
@@ -358,7 +375,11 @@ object Bitpeace {
     def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExists(id, chunkNr).transact(xa))
 
-    def chunkExistsRemove(id: String, chunkNr: Long, chunkLength: Long): Stream[F, Boolean] =
+    def chunkExistsRemove(
+        id: String,
+        chunkNr: Long,
+        chunkLength: Long
+    ): Stream[F, Boolean] =
       Stream.eval(stmt.chunkExistsRemove(id, chunkNr, chunkLength).transact(xa))
 
     private def rechunk(size: Int): Pipe[F, Byte, ByteVector] =
@@ -369,11 +390,15 @@ object Bitpeace {
         chunkSize: Int,
         hint: MimetypeHint
     ): Pipe[F, FileChunk, FileMeta] =
-      _.fold((sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize)))({
+      _.fold(
+        (sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize))
+      )({
         case ((shab, m), chunk) =>
           val fm = m.incChunks(1).incLength(chunk.chunkLength) match {
             case nextFm if nextFm.chunks == 1 =>
-              nextFm.copy(mimetype = config.mimetypeDetect.fromBytes(chunk.chunkData, hint))
+              nextFm.copy(mimetype =
+                config.mimetypeDetect.fromBytes(chunk.chunkData, hint)
+              )
             case nextFm =>
               nextFm
           }

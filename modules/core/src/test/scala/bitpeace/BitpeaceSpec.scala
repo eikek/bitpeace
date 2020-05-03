@@ -97,7 +97,12 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(chunks.size, 1)
 
     val out =
-      store.addChunk(chunks(0), chunksize, 1, MimetypeHint.none).compile.last.unsafeRunSync.get
+      store
+        .addChunk(chunks(0), chunksize, 1, MimetypeHint.none)
+        .compile
+        .last
+        .unsafeRunSync
+        .get
     assertEquals(out.result.checksum, out1.checksum)
     assertEquals(out.result.mimetype, out1.mimetype)
     assertEquals(out.result.chunks, out1.chunks)
@@ -193,18 +198,29 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", 2048)
 
-    val out1 = store.saveNew(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
+    val out1 =
+      store.saveNew(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
     assert(out1.id != out1.checksum)
-    assertEquals(out1.checksum, "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f")
+    assertEquals(
+      out1.checksum,
+      "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f"
+    )
 
-    val out2 = store.saveNew(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
+    val out2 =
+      store.saveNew(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
     assert(out2.id != out2.checksum)
     assert(out1.id != out2.id)
     assertEquals(out2.checksum, out1.checksum)
 
     assertEquals(store.count.compile.last.unsafeRunSync.orEmpty, 2)
-    assertEquals(store.get(out1.id).unNoneTerminate.compile.last.unsafeRunSync, Some(out1))
-    assertEquals(store.get(out2.id).unNoneTerminate.compile.last.unsafeRunSync, Some(out2))
+    assertEquals(
+      store.get(out1.id).unNoneTerminate.compile.last.unsafeRunSync,
+      Some(out1)
+    )
+    assertEquals(
+      store.get(out2.id).unNoneTerminate.compile.last.unsafeRunSync,
+      Some(out2)
+    )
   }
 
   test("save a file") { xa =>
@@ -212,11 +228,19 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", 2048)
     val out =
-      store.save(data, chunksize, MimetypeHint.filename("file.pdf")).compile.last.unsafeRunSync.get
+      store
+        .save(data, chunksize, MimetypeHint.filename("file.pdf"))
+        .compile
+        .last
+        .unsafeRunSync
+        .get
     out match {
       case Outcome.Created(m) =>
         assertEquals(m.id, m.checksum)
-        assertEquals(m.checksum, "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f")
+        assertEquals(
+          m.checksum,
+          "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f"
+        )
         assertEquals(m.chunks, 4)
         assertEquals(m.mimetype, Mimetype.`application/pdf`)
         assertEquals(m.length, 65404L)
@@ -253,10 +277,14 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
-    val out       = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
+    val out =
+      store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
     out match {
       case Outcome.Created(m) =>
-        assertEquals(m.id, "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f")
+        assertEquals(
+          m.id,
+          "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f"
+        )
         assertEquals(m.chunks, 4)
         assertEquals(m.length, 65404L)
       case r @ Outcome.Unmodified(_) =>
@@ -264,7 +292,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     }
     val fm = out.result
 
-    val out2 = store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
+    val out2 =
+      store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync.get
     assertEquals(out2, Outcome.Unmodified(fm))
   }
 

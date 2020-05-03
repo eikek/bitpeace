@@ -21,7 +21,10 @@ object RangeDefSpec extends SimpleTestSuite {
       bytes(Some(50), Some(100))(fs(100.bytes)),
       Validated.valid(Range(Ior.both(0 -> 50, 2 -> 50)))
     )
-    assertEquals(bytes(Some(680), None)(fs(250.bytes)), Validated.valid(Range(Ior.left(2 -> 180))))
+    assertEquals(
+      bytes(Some(680), None)(fs(250.bytes)),
+      Validated.valid(Range(Ior.left(2 -> 180)))
+    )
     assertEquals(
       bytes(Some(680), Some(1212))(fs(250.bytes)),
       Validated.valid(Range(Ior.both(2 -> 180, 6 -> 108)))

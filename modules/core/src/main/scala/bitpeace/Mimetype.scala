@@ -5,7 +5,11 @@ import cats.data.Validated
 import Compat._
 
 /** Utility around `javax.activation.Mimetype'. */
-case class Mimetype(primary: String, sub: String, params: Map[String, String] = Map.empty) {
+case class Mimetype(
+    primary: String,
+    sub: String,
+    params: Map[String, String] = Map.empty
+) {
 
   /** Return {{{other}}} if this is an unknown mimetype. */
   def orElse(other: Mimetype): Mimetype =
