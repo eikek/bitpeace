@@ -316,11 +316,10 @@ object BitpeaceSpec extends BitpeaceTestSuite {
 
     assert(o0 != o1)
     assert(o0.isCreated || o1.isCreated)
-    if (o0.isCreated) {
+    if (o0.isCreated)
       assert(o1.isUnmodified)
-    } else {
+    else
       assert(o0.isUnmodified)
-    }
     assertEquals(o0.result, o1.result)
   }
 

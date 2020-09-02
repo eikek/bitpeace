@@ -28,11 +28,12 @@ object TikaMimetypeDetect extends MimetypeDetect {
     md
   }
 
-  private def normalize(in: Mimetype): Mimetype = in match {
-    case Mimetype(_, sub, p) if sub contains "xhtml" =>
-      Mimetype.`text/html`.copy(params = p)
-    case _ => in
-  }
+  private def normalize(in: Mimetype): Mimetype =
+    in match {
+      case Mimetype(_, sub, p) if sub contains "xhtml" =>
+        Mimetype.`text/html`.copy(params = p)
+      case _ => in
+    }
 
   def fromBytes(bv: ByteVector, hint: MimetypeHint): Mimetype =
     convert(tika.detect(new java.io.ByteArrayInputStream(bv.toArray), makeMetadata(hint)))

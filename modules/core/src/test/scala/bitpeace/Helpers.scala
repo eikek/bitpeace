@@ -10,9 +10,10 @@ import TransactorTestSuite.testContextShift
 
 trait Helpers {
 
-  def resource(name: String, chunksize: Int = 64 * 1024): IO[InputStream] = IO {
-    Option(getClass.getResourceAsStream(name)).get
-  }
+  def resource(name: String, chunksize: Int = 64 * 1024): IO[InputStream] =
+    IO {
+      Option(getClass.getResourceAsStream(name)).get
+    }
 
   def resourceStream(name: String, chunksize: Int = 64 * 1024): Stream[IO, Byte] =
     io.readInputStream[IO](resource(name), chunksize, Helpers.blocker)

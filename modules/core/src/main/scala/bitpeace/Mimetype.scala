@@ -27,7 +27,8 @@ case class Mimetype(
     copy(params = params.updated(name, value))
 
   /** Return {{{true}}} if base type of {{{this}}} and {{{other}}} are
-    * equal. IOW compare without parameters.*/
+    * equal. IOW compare without parameters.
+    */
   def baseEqual(other: Mimetype): Boolean =
     baseType == other.baseType
 

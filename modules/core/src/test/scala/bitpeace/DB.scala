@@ -66,13 +66,18 @@ object DB {
       )
     }
 
-    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) = IO {
-      val conn =
-        DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
-      val statement = conn.createStatement();
-      statement.executeUpdate(s"DROP DATABASE $db");
-      conn.close()
-    }
+    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) =
+      IO {
+        val conn =
+          DriverManager.getConnection(
+            "jdbc:postgresql://localhost/postgres",
+            "dev",
+            "dev"
+          );
+        val statement = conn.createStatement();
+        statement.executeUpdate(s"DROP DATABASE $db");
+        conn.close()
+      }
 
     val dbms = Dbms.Postgres
   }
@@ -95,13 +100,14 @@ object DB {
       )
     }
 
-    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) = IO {
-      val conn =
-        DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
-      val statement = conn.createStatement();
-      statement.executeUpdate(s"DROP DATABASE $db");
-      conn.close()
-    }
+    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) =
+      IO {
+        val conn =
+          DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
+        val statement = conn.createStatement();
+        statement.executeUpdate(s"DROP DATABASE $db");
+        conn.close()
+      }
 
     val dbms = Dbms.MariaDb
   }

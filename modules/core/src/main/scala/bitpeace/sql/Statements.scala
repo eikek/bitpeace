@@ -18,8 +18,10 @@ trait Statements[F[_]] {
 
   def tryUpdateFileId(old: String, id: String) =
     for {
-      m <- (fr"""UPDATE """ ++ chunkTable ++ sql""" SET fileId = $id WHERE fileId = $old""").update.run.attemptSql
-      n <- (fr"UPDATE " ++ metaTable ++ sql" SET id = $id WHERE id = $old").update.run.attemptSql
+      m <-
+        (fr"""UPDATE """ ++ chunkTable ++ sql""" SET fileId = $id WHERE fileId = $old""").update.run.attemptSql
+      n <-
+        (fr"UPDATE " ++ metaTable ++ sql" SET id = $id WHERE id = $old").update.run.attemptSql
     } yield n |+| m
 
   private def chunkCondition(id: String, offset: Option[Int], limit: Option[Int]) = {
