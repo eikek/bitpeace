@@ -1,8 +1,9 @@
 # bitpeace – Handle binary data with doobie
 
-<a href="https://travis-ci.org/eikek/bitpeace"><img src="https://travis-ci.org/eikek/bitpeace.svg"></a>
-<a href="https://maven-badges.herokuapp.com/maven-central/com.github.eikek/bitpeace-core_2.12"><img src="https://img.shields.io/maven-central/v/com.github.eikek/bitpeace-core_2.12.svg?color=purple"></a>
-[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
+[![Build Status](https://img.shields.io/travis/eikek/bitpeace/master?style=flat-square)](https://travis-ci.org/eikek/bitpeace)
+[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
+[![License](https://img.shields.io/github/license/eikek/bitpeace.svg?style=flat-square&color=steelblue)](https://github.com/eikek/bitpeace/blob/master/LICENSE.txt)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.eikek/bitpeace-core_2.13?color=blue&style=flat-square)](https://search.maven.org/artifact/com.github.eikek/bitpeace-core_2.13)
 
 This is a library to store and load binary data based on
 [doobie](https://github.com/tpolecat/doobie).
@@ -18,15 +19,8 @@ Bitpeace is available from maven central for scala 2.12 and from
 version 0.4 for scala 2.13.
 
 ```
-"com.github.eikek" %% "bitpeace-core" % "0.4.4"
+"com.github.eikek" %% "bitpeace-core" % "0.5.0"
 ```
-
-| Bitpeace Version | Doobie Version | FS2 Version |
-|------------------|----------------|-------------|
-| 0.1.0            | 0.4.x          | 0.9.x       |
-| 0.2.x            | 0.5.x          | 0.10.x      |
-| 0.3.x            | 0.7.x          | 1.0.x       |
-| 0.4.x            | 0.8.x          | 2.x         |
 
 
 ## Dependencies
