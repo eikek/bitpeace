@@ -2,7 +2,7 @@ pull_request_rules:
   - name: automatically merge Scala Steward PRs on CI success
     conditions:
       - author=scala-steward
-      - base=series/0.5
+      - base=master
       - status-success=continuous-integration/travis-ci/pr
     actions:
       merge:
