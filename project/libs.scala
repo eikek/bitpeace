@@ -7,7 +7,7 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val fs2Io = "co.fs2" %% "fs2-io" % "2.4.5"
+  val fs2Io = "co.fs2" %% "fs2-io" % "2.4.6"
 
   // https://github.com/tpolecat/doobie
   // MIT
