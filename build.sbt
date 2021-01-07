@@ -1,9 +1,12 @@
 import libs._
+import com.typesafe.sbt.SbtGit.GitKeys._
 import xerial.sbt.Sonatype._
 import ReleaseTransformations._
+import sbt.nio.file.FileTreeView
 
 val scalacOpts: Seq[String] = Seq(
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-Xfatal-warnings",
   "-deprecation",
   "-feature",
@@ -30,8 +33,10 @@ lazy val sharedSettings = Seq(
       scalacOpts
     }
   },
-  scalacOptions in (Compile, console) ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains)),
-  scalacOptions in (Test) := (scalacOptions in (Compile, console)).value,
+  scalacOptions in (Compile, console) ~= (_.filterNot(
+    Set("-Xfatal-warnings", "-Ywarn-unused-import").contains
+  )),
+  scalacOptions in Test := (scalacOptions in (Compile, console)).value,
   testFrameworks += new TestFramework("minitest.runner.Framework")
 ) ++ publishSettings
 
@@ -69,7 +74,24 @@ lazy val publishSettings = Seq(
     commitNextVersion,
     pushChanges
   ),
-  sonatypeProjectHosting := Some(GitHubHosting("eikek", "yamusca", "eike.kettner@posteo.de"))
+  sonatypeProjectHosting := Some(
+    GitHubHosting("eikek", "bitpeace", "eike.kettner@posteo.de")
+  )
+)
+
+val buildInfoSettings = Seq(
+  buildInfoKeys := Seq[BuildInfoKey](
+    name,
+    version,
+    scalaVersion,
+    sbtVersion,
+    gitHeadCommit,
+    gitHeadCommitDate,
+    gitUncommittedChanges,
+    gitDescribedVersion
+  ),
+  buildInfoOptions += BuildInfoOption.ToJson,
+  buildInfoOptions += BuildInfoOption.BuildTime
 )
 
 lazy val noPublish = Seq(
@@ -81,16 +103,46 @@ lazy val noPublish = Seq(
 lazy val coreDeps = Seq(doobieCore, scodecBits, tika % "provided")
 lazy val testDeps = Seq(minitest, h2, postgres, mariadb, fs2Io).map(_ % "test")
 
-lazy val core = project.in(file("modules/core")).
-  settings(sharedSettings).
-  settings(publishSettings).
-  settings(Seq(
-    name := "bitpeace-core",
-    description := "Library for dealing with binary data using doobie.",
-    libraryDependencies ++= coreDeps ++ testDeps
-  ))
+lazy val core = project
+  .in(file("modules/core"))
+  .settings(sharedSettings)
+  .settings(publishSettings)
+  .settings(
+    Seq(
+      name := "bitpeace-core",
+      description := "Library for dealing with binary data using doobie.",
+      libraryDependencies ++= coreDeps ++ testDeps
+    )
+  )
 
-lazy val root = project.in(file(".")).
-  settings(sharedSettings).
-  settings(noPublish).
-  aggregate(core)
+val updateReadme = inputKey[Unit]("Update readme")
+lazy val readme = project
+  .in(file("modules/readme"))
+  .enablePlugins(MdocPlugin)
+  .settings(sharedSettings)
+  .settings(noPublish)
+  .settings(
+    name := "bitpeace-readme",
+    scalacOptions := Seq(),
+    libraryDependencies ++= Seq(tika, h2),
+    mdocVariables := Map(
+      "VERSION" -> version.value
+    ),
+    updateReadme := {
+      FileTreeView.default
+        .list(file("/tmp").toGlob / "bitpeace-testdb*")
+        .map(_._1.toFile)
+        .foreach(IO.delete)
+      mdoc.evaluated
+      val out    = mdocOut.value / "readme.md"
+      val target = (LocalRootProject / baseDirectory).value / "README.md"
+      val logger = streams.value.log
+      logger.info(s"Updating readme: $out -> $target")
+      IO.copyFile(out, target)
+      ()
+    }
+  )
+  .dependsOn(core)
+
+lazy val root =
+  project.in(file(".")).settings(sharedSettings).settings(noPublish).aggregate(core)
