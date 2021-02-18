@@ -19,7 +19,7 @@ object libs {
 
   // https://jdbc.postgresql.org/
   // BSD
-  val postgres = "org.postgresql" % "postgresql" % "42.2.18"
+  val postgres = "org.postgresql" % "postgresql" % "42.2.19"
 
   // https://github.com/MariaDB/mariadb-connector-j
   // LGPL-2.1
