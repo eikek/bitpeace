@@ -2,7 +2,7 @@ import sbt._
 
 object libs {
 
-  val scala213 = "2.13.1"
+  val scala213 = "2.13.5"
   val scala212 = "2.12.11"
 
   // https://github.com/functional-streams-for-scala/fs2
