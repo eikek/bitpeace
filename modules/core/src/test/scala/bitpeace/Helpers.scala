@@ -10,7 +10,7 @@ import TransactorTestSuite.testContextShift
 
 trait Helpers {
 
-  def resource(name: String, chunksize: Int = 64 * 1024): IO[InputStream] =
+  def resource(name: String): IO[InputStream] =
     IO {
       Option(getClass.getResourceAsStream(name)).get
     }
@@ -29,7 +29,7 @@ trait Helpers {
     _.chunks.map(c => ByteVector.view(c.toArray)).fold1(_ ++ _).map(_.toBase64)
 
   def readResource(name: String, chunksize: Int = 64 * 1024): ByteVector =
-    resourceStream(name, chunksize).through(readBytes).compile.toVector.unsafeRunSync.head
+    resourceStream(name, chunksize).through(readBytes).compile.toVector.unsafeRunSync().head
 
 }
 

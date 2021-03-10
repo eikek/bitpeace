@@ -133,7 +133,7 @@ trait Statements[F[_]] {
       .query[Long]
       .unique
 
-  def createMetaTable(db: Dbms): Update0 = (fr"""
+  def createMetaTable: Update0 = (fr"""
     CREATE TABLE """ ++ metaTable ++ fr""" (
       id varchar(254) not null,
       timestamp varchar(40) not null,

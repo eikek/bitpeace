@@ -2,7 +2,7 @@ package bitpeace
 
 import java.time._
 
-case class FileMeta(
+final case class FileMeta(
     id: String,
     timestamp: Instant,
     mimetype: Mimetype,

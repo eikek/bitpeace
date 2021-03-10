@@ -4,21 +4,6 @@ import xerial.sbt.Sonatype._
 import ReleaseTransformations._
 import sbt.nio.file.FileTreeView
 
-val scalacOpts: Seq[String] = Seq(
-  "-encoding",
-  "UTF-8",
-  "-Xfatal-warnings",
-  "-deprecation",
-  "-feature",
-  "-unchecked",
-  "-language:higherKinds",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-unused-import"
-)
-
 lazy val sharedSettings = Seq(
   name := "bitpeace",
   organization := "com.github.eikek",
@@ -26,13 +11,29 @@ lazy val sharedSettings = Seq(
   homepage := Some(url("https://github.com/eikek/bitpeace")),
   crossScalaVersions := Seq(scala212, scala213),
   scalaVersion := scala213,
-  scalacOptions := {
-    if (scalaBinaryVersion.value.startsWith("2.13")) {
-      scalacOpts.filter(o => o != "-Yno-adapted-args" && o != "-Ywarn-unused-import")
-    } else {
-      scalacOpts
-    }
-  },
+  scalacOptions ++=
+    Seq(
+      "-feature",
+      "-deprecation",
+      "-unchecked",
+      "-encoding",
+      "UTF-8",
+      "-language:higherKinds"
+    ) ++
+      (if (scalaBinaryVersion.value.startsWith("2.12"))
+         List(
+           "-Xfatal-warnings", // fail when there are warnings
+           "-Xlint",
+           "-Yno-adapted-args",
+           "-Ywarn-dead-code",
+           "-Ywarn-unused-import",
+           "-Ypartial-unification",
+           "-Ywarn-value-discard"
+         )
+       else if (scalaBinaryVersion.value.startsWith("2.13"))
+         List("-Werror", "-Wdead-code", "-Wunused", "-Wvalue-discard")
+       else
+         Nil),
   scalacOptions in (Compile, console) ~= (_.filterNot(
     Set("-Xfatal-warnings", "-Ywarn-unused-import").contains
   )),
@@ -133,7 +134,7 @@ lazy val readme = project
         .list(file("/tmp").toGlob / "bitpeace-testdb*")
         .map(_._1.toFile)
         .foreach(IO.delete)
-      mdoc.evaluated
+      val _      = mdoc.evaluated
       val out    = mdocOut.value / "readme.md"
       val target = (LocalRootProject / baseDirectory).value / "README.md"
       val logger = streams.value.log
