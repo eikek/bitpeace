@@ -9,7 +9,7 @@ trait BitpeaceTestSuite extends TransactorTestSuite {
 
   override def setup(): DbSetup = {
     val dbs = super.setup()
-    BitpeaceTables(config).create(dbs.dbms).transact(dbs.xa).unsafeRunSync
+    BitpeaceTables(config).create(dbs.dbms).transact(dbs.xa).unsafeRunSync()
     dbs
   }
 

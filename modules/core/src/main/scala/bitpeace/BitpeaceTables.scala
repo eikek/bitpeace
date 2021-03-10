@@ -9,7 +9,7 @@ case class BitpeaceTables[F[_]](cfg: BitpeaceConfig[F]) {
 
   def create(db: Dbms): Free[ConnectionOp, Unit] =
     for {
-      a <- stmt.createMetaTable(db).run
-      b <- stmt.createChunkTable(db).run
+      _ <- stmt.createMetaTable.run
+      _ <- stmt.createChunkTable(db).run
     } yield ()
 }

@@ -18,7 +18,7 @@ trait TransactorTestSuite extends TestSuite[DbSetup] with Helpers {
 
   def tearDown(p: DbSetup): Unit = {
     val DB = dbSetup
-    DB.dropDatabase(p.dbname, p.xa).unsafeRunSync
+    DB.dropDatabase(p.dbname, p.xa).unsafeRunSync()
   }
 
 }

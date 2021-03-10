@@ -233,7 +233,7 @@ object Bitpeace {
                   .unNoneTerminate
 
             val updateMeta: Stream[F, FileMeta] = {
-              val makeSha = makeChecksum(chunk.fileId, nChunks)
+              val makeSha = makeChecksum(chunk.fileId)
               makeSha.flatMap { checksum =>
                 Stream
                   .eval((for {
@@ -412,7 +412,7 @@ object Bitpeace {
             (shab.update(chunk.chunkData), fm)
         }).map(t => t._2.copy(checksum = t._1.get))
 
-      private def makeChecksum(id: String, nChunks: Int): Stream[F, String] =
+      private def makeChecksum(id: String): Stream[F, String] =
         stmt
           .selectChunkData(id)
           .streamWithChunkSize(1)

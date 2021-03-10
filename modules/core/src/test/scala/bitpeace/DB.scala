@@ -41,7 +41,10 @@ object DB {
           Files
             .list(file.getParent)
             .filter(p => p.getFileName.toString.startsWith(file.getFileName.toString))
-            .forEach(p => Files.deleteIfExists(p))
+            .forEach(p => {
+              Files.deleteIfExists(p)
+              ()
+            })
         )
       } yield ()
 

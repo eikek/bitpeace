@@ -11,8 +11,8 @@ object BitpeaceTablesSpec extends TransactorTestSuite {
 //  override val dbSetup = DB.Postgres
 
   test("create tables") { p =>
-    tables.create(p.dbms).transact(p.xa).unsafeRunSync
-    val c = sql.Statements(config).count.transact(p.xa).unsafeRunSync
+    tables.create(p.dbms).transact(p.xa).unsafeRunSync()
+    val c = sql.Statements(config).count.transact(p.xa).unsafeRunSync()
     assertEquals(c, 0)
   }
 }
