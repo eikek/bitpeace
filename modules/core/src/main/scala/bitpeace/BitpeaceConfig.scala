@@ -1,6 +1,7 @@
 package bitpeace
 
 import java.util.UUID
+
 import cats.effect.Sync
 
 case class BitpeaceConfig[F[_]](

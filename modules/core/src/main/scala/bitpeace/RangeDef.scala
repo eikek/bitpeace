@@ -3,8 +3,7 @@ package bitpeace
 import cats.data.{Ior, Validated}
 import cats.implicits._
 
-/**
-  * When requsting a specific range of data, the offsets must be
+/** When requsting a specific range of data, the offsets must be
   * calculated given the total size and chunksize.
   */
 trait RangeDef extends (FileMeta => Validated[String, Range])

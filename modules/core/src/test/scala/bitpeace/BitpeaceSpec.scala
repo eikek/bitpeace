@@ -1,16 +1,16 @@
 package bitpeace
 
-import java.util.concurrent.CountDownLatch
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
 
-import fs2._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.implicits._
 import cats.effect.IO
+import cats.implicits._
 import doobie.implicits._
+import fs2._
 import scodec.bits.ByteVector
 
 object BitpeaceSpec extends BitpeaceTestSuite {
@@ -50,9 +50,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
 
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({
-        case (c, i) =>
-          FileChunk(fileId, i, ByteVector.view(c.toArray))
+      .map({ case (c, i) =>
+        FileChunk(fileId, i, ByteVector.view(c.toArray))
       })
       .compile
       .toVector
@@ -86,9 +85,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       .get
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({
-        case (c, i) =>
-          FileChunk(fileId, i, ByteVector.view(c.toArray))
+      .map({ case (c, i) =>
+        FileChunk(fileId, i, ByteVector.view(c.toArray))
       })
       .compile
       .toVector
@@ -121,9 +119,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
       .get
 
     val chunks = data.chunks.zipWithIndex
-      .map({
-        case (c, i) =>
-          FileChunk("fileabc", i, ByteVector.view(c.toArray))
+      .map({ case (c, i) =>
+        FileChunk("fileabc", i, ByteVector.view(c.toArray))
       })
       .compile
       .toVector
@@ -147,7 +144,6 @@ object BitpeaceSpec extends BitpeaceTestSuite {
         .toVector
         .unsafeRunSync()
 
-
       val fm = store.get(id).compile.lastOrError.unsafeRunSync().get
 
       assertEquals(fm.checksum, out1.checksum)
@@ -167,9 +163,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
 
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({
-        case (c, i) =>
-          FileChunk(fileId, i, ByteVector.view(c.toArray))
+      .map({ case (c, i) =>
+        FileChunk(fileId, i, ByteVector.view(c.toArray))
       })
       .compile
       .toVector

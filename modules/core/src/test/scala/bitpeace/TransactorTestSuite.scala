@@ -1,8 +1,9 @@
 package bitpeace
 
-import minitest._
-import cats.effect._
 import scala.concurrent.ExecutionContext
+
+import cats.effect._
+import minitest._
 
 trait TransactorTestSuite extends TestSuite[DbSetup] with Helpers {
 

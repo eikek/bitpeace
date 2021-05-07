@@ -2,11 +2,11 @@ package bitpeace.sql
 
 import java.time.Instant
 
-import doobie._, doobie.implicits._
-import scodec.bits.ByteVector
-import cats.implicits._
-
 import bitpeace._
+import cats.implicits._
+import doobie._
+import doobie.implicits._
+import scodec.bits.ByteVector
 
 trait Statements[F[_]] {
   val config: BitpeaceConfig[F]

@@ -1,12 +1,14 @@
 package bitpeace
 
 import java.time.Instant
-import cats.effect.{Effect, Sync}
+
 import cats.data._
+import cats.effect.{Effect, Sync}
 import cats.implicits._
-import fs2.{Chunk, Pipe, RaiseThrowable, Stream}
+import doobie._
+import doobie.implicits._
 import fs2.Chunk.ByteVectorChunk
-import doobie._, doobie.implicits._
+import fs2._
 import scodec.bits.ByteVector
 
 /** A store for binary data.
@@ -399,17 +401,16 @@ object Bitpeace {
       ): Pipe[F, FileChunk, FileMeta] =
         _.fold(
           (sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize))
-        )({
-          case ((shab, m), chunk) =>
-            val fm = m.incChunks(1).incLength(chunk.chunkLength) match {
-              case nextFm if nextFm.chunks == 1 =>
-                nextFm.copy(mimetype =
-                  config.mimetypeDetect.fromBytes(chunk.chunkData, hint)
-                )
-              case nextFm =>
-                nextFm
-            }
-            (shab.update(chunk.chunkData), fm)
+        )({ case ((shab, m), chunk) =>
+          val fm = m.incChunks(1).incLength(chunk.chunkLength) match {
+            case nextFm if nextFm.chunks == 1 =>
+              nextFm.copy(mimetype =
+                config.mimetypeDetect.fromBytes(chunk.chunkData, hint)
+              )
+            case nextFm =>
+              nextFm
+          }
+          (shab.update(chunk.chunkData), fm)
         }).map(t => t._2.copy(checksum = t._1.get))
 
       private def makeChecksum(id: String): Stream[F, String] =

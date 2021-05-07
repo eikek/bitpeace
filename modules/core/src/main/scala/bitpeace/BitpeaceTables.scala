@@ -1,8 +1,8 @@
 package bitpeace
 
+import bitpeace.sql.Dbms
 import cats.free.Free
 import doobie.free.connection.ConnectionOp
-import bitpeace.sql.Dbms
 
 case class BitpeaceTables[F[_]](cfg: BitpeaceConfig[F]) {
   private val stmt = sql.Statements(cfg)

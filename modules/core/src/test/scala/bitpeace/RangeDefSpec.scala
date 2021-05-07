@@ -2,9 +2,9 @@ package bitpeace
 
 import java.time.Instant
 
-import minitest._
+import bitpeace.RangeDef._
 import cats.data.{Ior, Validated}
-import RangeDef._
+import minitest._
 
 object RangeDefSpec extends SimpleTestSuite {
 
