@@ -62,7 +62,6 @@ lazy val publishSettings = Seq(
       email = ""
     )
   ),
-  publishTo := sonatypePublishToBundle.value,
   Test / publishArtifact := false
 )
 
@@ -93,7 +92,8 @@ val scalafixSettings = Seq(
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 )
 
-lazy val coreDeps = Seq(doobieCore, scodecBits, tika.intransitive % "provided")
+lazy val coreDeps =
+  Seq(doobieCore, scodecBits, activation, tika.intransitive % "provided")
 lazy val testDeps = Seq(minitest, h2, postgres, mariadb, fs2Io).map(_ % "test")
 
 lazy val core = project

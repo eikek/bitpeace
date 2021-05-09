@@ -1,9 +1,8 @@
 package bitpeace
 
-import javax.activation.{MimeType => JMimeType}
-
 import bitpeace.Compat._
 import cats.data.Validated
+import jakarta.activation.{MimeType => JMimeType}
 
 /** Utility around `javax.activation.Mimetype'. */
 case class Mimetype(
