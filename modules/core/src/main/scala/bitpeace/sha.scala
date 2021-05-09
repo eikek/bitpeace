@@ -1,6 +1,7 @@
 package bitpeace
 
 import java.security.MessageDigest
+
 import scodec.bits.ByteVector
 
 private[bitpeace] object sha {

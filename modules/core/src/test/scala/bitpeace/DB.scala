@@ -1,12 +1,12 @@
 package bitpeace
 
+import java.nio.file.{Files, Paths}
+import java.sql._
+
+import bitpeace.sql._
 import cats.effect._
 import doobie._
 import doobie.implicits._
-import bitpeace.sql._
-
-import java.nio.file.{Files, Paths}
-import java.sql._
 
 trait DB[F[_]] {
 
@@ -41,10 +41,10 @@ object DB {
           Files
             .list(file.getParent)
             .filter(p => p.getFileName.toString.startsWith(file.getFileName.toString))
-            .forEach(p => {
+            .forEach { p =>
               Files.deleteIfExists(p)
               ()
-            })
+            }
         )
       } yield ()
 

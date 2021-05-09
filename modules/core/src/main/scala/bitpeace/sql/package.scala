@@ -1,6 +1,7 @@
 package bitpeace
 
 import java.time.Instant
+
 import doobie._
 import scodec.bits.ByteVector
 

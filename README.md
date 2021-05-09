@@ -29,11 +29,13 @@ It obviously depends on [doobie](https://github.com/tpolecat/doobie)
 and therefore on [cats](http://typelevel.org/cats/) and
 [fs2](https://github.com/functional-streams-for-scala/fs2).
 
-While trying to minimize further dependencies, I choose to include two
-more:
+While trying to minimize further dependencies, I chose to these:
 
 - `tika-core` (optional), Apache 2.0 License, http://tika.apache.org
 - `scodec-bits`, BSD-3-Clause, https://github.com/scodec/scodec-bits
+- `jakarta.activation-api`, BSD-3-Clause
+  https://eclipse-ee4j.github.io/jaf/ (used to parse mimetype, it is
+  included in the jdk up until java8)
 
 Both dependencies are itself “dependency-free”. The `tika-core` is
 marked as optional.

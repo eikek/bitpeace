@@ -4,8 +4,7 @@ import cats.data.Ior
 import fs2.{Chunk, Pipe, Stream}
 import scodec.bits.ByteVector
 
-/**
-  * A range for a chunk query.
+/** A range for a chunk query.
   *
   * Specifies how many chunks and how many bytes of selected chunks have to be skipped.
   */

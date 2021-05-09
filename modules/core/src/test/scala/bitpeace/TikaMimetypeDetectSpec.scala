@@ -1,7 +1,7 @@
 package bitpeace
 
-import scodec.bits.ByteVector
 import minitest._
+import scodec.bits.ByteVector
 
 object TikaMimetypeDetectSpec extends SimpleTestSuite with Helpers {
 

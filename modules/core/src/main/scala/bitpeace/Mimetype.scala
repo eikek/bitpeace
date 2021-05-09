@@ -1,8 +1,8 @@
 package bitpeace
 
-import javax.activation.{MimeType => JMimeType}
+import bitpeace.Compat._
 import cats.data.Validated
-import Compat._
+import jakarta.activation.{MimeType => JMimeType}
 
 /** Utility around `javax.activation.Mimetype'. */
 case class Mimetype(
@@ -38,9 +38,8 @@ case class Mimetype(
 
   /** Renders this mimetype into its string representation. */
   def asString =
-    params.foldLeft(baseType) {
-      case (s, (name, value)) =>
-        s + s"""; $name="$value""""
+    params.foldLeft(baseType) { case (s, (name, value)) =>
+      s + s"""; $name="$value""""
     }
 }
 

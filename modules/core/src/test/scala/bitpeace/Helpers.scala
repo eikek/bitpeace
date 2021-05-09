@@ -1,12 +1,14 @@
 package bitpeace
 
 import java.io.InputStream
-import cats.effect._
-import fs2.{Chunk, Pipe, Stream, io}
-import scodec.bits.ByteVector
-import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
-import TransactorTestSuite.testContextShift
+
+import scala.concurrent.ExecutionContext
+
+import bitpeace.TransactorTestSuite.testContextShift
+import cats.effect._
+import fs2._
+import scodec.bits.ByteVector
 
 trait Helpers {
 
@@ -29,7 +31,12 @@ trait Helpers {
     _.chunks.map(c => ByteVector.view(c.toArray)).fold1(_ ++ _).map(_.toBase64)
 
   def readResource(name: String, chunksize: Int = 64 * 1024): ByteVector =
-    resourceStream(name, chunksize).through(readBytes).compile.toVector.unsafeRunSync().head
+    resourceStream(name, chunksize)
+      .through(readBytes)
+      .compile
+      .toVector
+      .unsafeRunSync()
+      .head
 
 }
 

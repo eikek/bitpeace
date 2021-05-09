@@ -1,8 +1,13 @@
 import libs._
 import com.typesafe.sbt.SbtGit.GitKeys._
-import xerial.sbt.Sonatype._
-import ReleaseTransformations._
 import sbt.nio.file.FileTreeView
+
+addCommandAlias("ci", "; lint; +test; +publishLocal")
+addCommandAlias(
+  "lint",
+  "; scalafmtSbtCheck; scalafmtCheckAll; Compile/scalafix --check; Test/scalafix --check"
+)
+addCommandAlias("fix", "; Compile/scalafix; Test/scalafix; scalafmtSbt; scalafmtAll")
 
 lazy val sharedSettings = Seq(
   name := "bitpeace",
@@ -34,10 +39,10 @@ lazy val sharedSettings = Seq(
          List("-Werror", "-Wdead-code", "-Wunused", "-Wvalue-discard")
        else
          Nil),
-  scalacOptions in (Compile, console) ~= (_.filterNot(
+  Compile / console / scalacOptions ~= (_.filterNot(
     Set("-Xfatal-warnings", "-Ywarn-unused-import").contains
   )),
-  scalacOptions in Test := (scalacOptions in (Compile, console)).value,
+  Test / scalacOptions := (Compile / console / scalacOptions).value,
   testFrameworks += new TestFramework("minitest.runner.Framework")
 ) ++ publishSettings
 
@@ -57,27 +62,7 @@ lazy val publishSettings = Seq(
       email = ""
     )
   ),
-  publishTo := sonatypePublishToBundle.value,
-  publishArtifact in Test := false,
-  releaseCrossBuild := true,
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    // For non cross-build projects, use releaseStepCommand("publishSigned")
-    releaseStepCommandAndRemaining("+publishSigned"),
-    releaseStepCommand("sonatypeBundleRelease"),
-    setNextVersion,
-    commitNextVersion,
-    pushChanges
-  ),
-  sonatypeProjectHosting := Some(
-    GitHubHosting("eikek", "bitpeace", "eike.kettner@posteo.de")
-  )
+  Test / publishArtifact := false
 )
 
 val buildInfoSettings = Seq(
@@ -101,13 +86,21 @@ lazy val noPublish = Seq(
   publishArtifact := false
 )
 
-lazy val coreDeps = Seq(doobieCore, scodecBits, tika % "provided")
+val scalafixSettings = Seq(
+  semanticdbEnabled := true,                        // enable SemanticDB
+  semanticdbVersion := scalafixSemanticdb.revision, // use Scalafix compatible version
+  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+)
+
+lazy val coreDeps =
+  Seq(doobieCore, scodecBits, activation, tika.intransitive % "provided")
 lazy val testDeps = Seq(minitest, h2, postgres, mariadb, fs2Io).map(_ % "test")
 
 lazy val core = project
   .in(file("modules/core"))
   .settings(sharedSettings)
   .settings(publishSettings)
+  .settings(scalafixSettings)
   .settings(
     Seq(
       name := "bitpeace-core",

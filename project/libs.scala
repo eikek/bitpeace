@@ -5,6 +5,8 @@ object libs {
   val scala213 = "2.13.5"
   val scala212 = "2.12.13"
 
+  val activation = "jakarta.activation" % "jakarta.activation-api" % "2.0.1"
+
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
   val fs2Io = "co.fs2" %% "fs2-io" % "2.5.5"
