@@ -1,4 +1,4 @@
-import libs._
+import Dependencies._
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt.nio.file.FileTreeView
 
@@ -14,8 +14,8 @@ lazy val sharedSettings = Seq(
   organization := "com.github.eikek",
   licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
   homepage := Some(url("https://github.com/eikek/bitpeace")),
-  crossScalaVersions := Seq(scala212, scala213),
-  scalaVersion := scala213,
+  crossScalaVersions := Seq(Version.scala212, Version.scala213),
+  scalaVersion := Version.scala213,
   scalacOptions ++=
     Seq(
       "-feature",
@@ -43,7 +43,8 @@ lazy val sharedSettings = Seq(
     Set("-Xfatal-warnings", "-Ywarn-unused-import").contains
   )),
   Test / scalacOptions := (Compile / console / scalacOptions).value,
-  testFrameworks += new TestFramework("minitest.runner.Framework")
+  testFrameworks += new TestFramework("minitest.runner.Framework"),
+  versionScheme := Some("early-semver")
 ) ++ publishSettings
 
 lazy val publishSettings = Seq(
@@ -89,7 +90,7 @@ lazy val noPublish = Seq(
 val scalafixSettings = Seq(
   semanticdbEnabled := true,                        // enable SemanticDB
   semanticdbVersion := scalafixSemanticdb.revision, // use Scalafix compatible version
-  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % Version.organizeImports
 )
 
 lazy val coreDeps =
