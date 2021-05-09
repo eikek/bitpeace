@@ -29,14 +29,18 @@ It obviously depends on [doobie](https://github.com/tpolecat/doobie)
 and therefore on [cats](http://typelevel.org/cats/) and
 [fs2](https://github.com/functional-streams-for-scala/fs2).
 
-While trying to minimize further dependencies, I choose to include two
-more:
+While trying to minimize further dependencies, I chose to these:
 
 - `tika-core` (optional), Apache 2.0 License, http://tika.apache.org
 - `scodec-bits`, BSD-3-Clause, https://github.com/scodec/scodec-bits
+- `jakarta.activation-api`, BSD-3-Clause
+  https://eclipse-ee4j.github.io/jaf/ (used to parse mimetype, it is
+  included in the jdk up until java8)
 
-Both dependencies are itself “dependency-free”. The `tika-core` is
-marked as optional.
+The last two dependencies are itself “dependency-free”. The
+`tika-core` dependcny is marked as optional. It is only required, if
+using the provided config that uses tika for mime-type extraction
+`BitpeaceConfig.defaultTika`.
 
 Since mimetype detection belongs to “handling binaries”, I wanted to
 include it in this library. Tika is used for mimetype detection by
