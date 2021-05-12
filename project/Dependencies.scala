@@ -9,7 +9,7 @@ object Dependencies {
     val h2              = "1.4.200"
     val log4s           = "1.4.0"
     val logback         = "1.2.3"
-    val mariadb         = "2.7.2"
+    val mariadb         = "2.7.3"
     val minitest        = "2.9.5"
     val organizeImports = "0.5.0"
     val postgres        = "42.2.20"
