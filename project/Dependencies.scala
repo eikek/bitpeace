@@ -5,7 +5,7 @@ object Dependencies {
   object Version {
     val activation      = "2.0.1"
     val doobie          = "0.13.2"
-    val fs2             = "2.5.5"
+    val fs2             = "2.5.6"
     val h2              = "1.4.200"
     val log4s           = "1.4.0"
     val logback         = "1.2.3"
