@@ -4,7 +4,7 @@ object Dependencies {
 
   object Version {
     val activation      = "2.0.1"
-    val doobie          = "0.13.2"
+    val doobie          = "0.13.4"
     val fs2             = "2.5.6"
     val h2              = "1.4.200"
     val log4s           = "1.4.0"
@@ -12,9 +12,9 @@ object Dependencies {
     val mariadb         = "2.7.3"
     val minitest        = "2.9.6"
     val organizeImports = "0.5.0"
-    val postgres        = "42.2.20"
-    val scala212        = "2.12.13"
-    val scala213        = "2.13.6"
+    val postgres        = "42.2.21"
+    val scala212        = "2.12.14"
+    val scala213        = "2.13.5"
     val scodec          = "1.1.27"
     val tika            = "1.26"
   }
