@@ -14,7 +14,7 @@ object Dependencies {
     val organizeImports = "0.5.0"
     val postgres        = "42.2.21"
     val scala212        = "2.12.14"
-    val scala213        = "2.13.5"
+    val scala213        = "2.13.6"
     val scodec          = "1.1.27"
     val tika            = "1.26"
   }
