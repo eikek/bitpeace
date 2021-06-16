@@ -12,7 +12,7 @@ object Dependencies {
     val mariadb         = "2.7.3"
     val minitest        = "2.9.6"
     val organizeImports = "0.5.0"
-    val postgres        = "42.2.21"
+    val postgres        = "42.2.22"
     val scala212        = "2.12.14"
     val scala213        = "2.13.6"
     val scodec          = "1.1.27"
