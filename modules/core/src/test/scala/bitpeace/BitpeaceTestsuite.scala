@@ -1,6 +1,7 @@
 package bitpeace
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import doobie.implicits._
 
 trait BitpeaceTestSuite extends TransactorTestSuite {

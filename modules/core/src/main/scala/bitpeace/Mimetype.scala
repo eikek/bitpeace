@@ -44,12 +44,12 @@ case class Mimetype(
 }
 
 object Mimetype {
-  val `application/octet-stream` = Mimetype("application", "octet-stream")
-  val unknown                    = `application/octet-stream`
-  val `application/pdf`          = Mimetype("application", "pdf")
-  val `text/html`                = Mimetype("text", "html")
-  val `application/x-xz`         = Mimetype("application", "x-xz")
-  val `application/zip`          = Mimetype("application", "zip")
+  val applicationOctetStream = Mimetype("application", "octet-stream")
+  val unknown                = applicationOctetStream
+  val applicationPdf         = Mimetype("application", "pdf")
+  val textHtml               = Mimetype("text", "html")
+  val applicationXxz         = Mimetype("application", "x-xz")
+  val applicationZip         = Mimetype("application", "zip")
 
   def application(sub: String): Mimetype =
     Mimetype("application", sub)

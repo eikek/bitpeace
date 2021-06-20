@@ -3,11 +3,11 @@ package bitpeace
 import java.time.Instant
 
 import cats.data._
-import cats.effect.{Effect, Sync}
+import cats.effect.{Outcome => _, _}
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import fs2.Chunk.ByteVectorChunk
+import fs2.Chunk
 import fs2._
 import scodec.bits.ByteVector
 
@@ -140,7 +140,7 @@ object Bitpeace {
   def apply[F[_]](
       config: BitpeaceConfig[F],
       xa: Transactor[F]
-  )(implicit F: Effect[F], ev: RaiseThrowable[F]): Bitpeace[F] =
+  )(implicit F: Async[F], ev: RaiseThrowable[F]): Bitpeace[F] =
     new Bitpeace[F] {
       val stmt = sql.Statements(config)
 
@@ -249,12 +249,12 @@ object Bitpeace {
             def tryInsertMeta(fm: FileMeta) =
               stmt.insertFileMeta(fm).run.attemptSql.transact(xa).flatMap {
                 case Right(_) =>
-                  Effect[F].pure(fm)
+                  Async[F].pure(fm)
                 case Left(sqlex) =>
                   stmt.selectFileMeta(fm.id).transact(xa).flatMap {
-                    case Some(m) => Effect[F].pure(m)
+                    case Some(m) => Async[F].pure(m)
                     case None =>
-                      Effect[F].raiseError[FileMeta](
+                      Async[F].raiseError[FileMeta](
                         new Exception(s"Cannot insert or find FileMeta $fm", sqlex)
                       )
                   }
@@ -418,13 +418,10 @@ object Bitpeace {
           .selectChunkData(id)
           .streamWithChunkSize(1)
           .transact(xa)
-          .flatMap(bs => Stream.chunk(ByteVectorChunk(bs)))
+          .flatMap(bs => Stream.chunk(Chunk.byteVector(bs)))
           .through(fs2.hash.sha256)
           .chunks
-          .map({
-            case Chunk.ByteVectorChunk(bv) => bv.toHex
-            case cs                        => ByteVector.view(cs.toArray).toHex
-          })
+          .map(_.toByteVector.toHex)
           .foldMonoid
     }
 

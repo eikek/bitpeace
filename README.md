@@ -77,9 +77,9 @@ val cfg1 = BitpeaceConfig.default[IO]
 // cfg1: BitpeaceConfig[IO] = BitpeaceConfig(
 //   metaTable = "FileMeta",
 //   chunkTable = "FileChunk",
-//   mimetypeDetect = bitpeace.MimetypeDetect$$anon$1@7bde348f,
+//   mimetypeDetect = bitpeace.MimetypeDetect$$anon$1@3a250ebd,
 //   randomIdGen = Delay(
-//     thunk = bitpeace.BitpeaceConfig$$$Lambda$11182/0x00000001032a8c40@799e9087
+//     thunk = bitpeace.BitpeaceConfig$$$Lambda$47941/0x0000000107154c40@4fc3dc60
 //   )
 // )
 ```
@@ -95,9 +95,9 @@ val cfg2 = BitpeaceConfig.defaultTika[IO]
 // cfg2: BitpeaceConfig[IO] = BitpeaceConfig(
 //   metaTable = "FileMeta",
 //   chunkTable = "FileChunk",
-//   mimetypeDetect = bitpeace.TikaMimetypeDetect$@638b6df5,
+//   mimetypeDetect = bitpeace.TikaMimetypeDetect$@57222197,
 //   randomIdGen = Delay(
-//     thunk = bitpeace.BitpeaceConfig$$$Lambda$11182/0x00000001032a8c40@799e9087
+//     thunk = bitpeace.BitpeaceConfig$$$Lambda$47941/0x0000000107154c40@4fc3dc60
 //   )
 // )
 ```
@@ -109,29 +109,29 @@ The second requirement is a doobie `Transactor` to connect to the
 database. For example, this creates one for the H2 database:
 
 ```scala
-import doobie._, doobie.implicits._
-
-implicit val CS = IO.contextShift(scala.concurrent.ExecutionContext.global)
-// CS: cats.effect.ContextShift[IO] = cats.effect.internals.IOContextShift@6107e29e
+import doobie._
+import doobie.implicits._
 
 val xa = Transactor.fromDriverManager[IO](
   "org.h2.Driver", s"jdbc:h2:/tmp/bitpeace-testdb", "sa", ""
 )
-// xa: Transactor.Aux[IO, Unit] = doobie.util.transactor$Transactor$$anon$13@6a399f3d
+// xa: Transactor.Aux[IO, Unit] = doobie.util.transactor$Transactor$$anon$13@2367cbac
 ```
 
 Given a config and a transactor, the main entrypoint `Bitpeace` can be created:
 
 ```scala
 val bitpeace = Bitpeace(BitpeaceConfig.defaultTika[IO], xa)
-// bitpeace: Bitpeace[IO[A]] = bitpeace.Bitpeace$$anon$1@a5ca253
+// bitpeace: Bitpeace[IO[A]] = bitpeace.Bitpeace$$anon$1@225d10bf
 ```
 
 In order to start using it, the database schema must exist. The
 `BitpeaceTables` class is a convenience helper to do that:
 
 ```scala
-BitpeaceTables(BitpeaceConfig.default[IO]).create(sql.Dbms.H2).transact(xa).unsafeRunSync
+import cats.effect.unsafe.implicits.global
+
+BitpeaceTables(BitpeaceConfig.default[IO]).create(sql.Dbms.H2).transact(xa).unsafeRunSync()
 ```
 
 
@@ -152,6 +152,7 @@ Data can be inserted using `saveNew`:
 ```scala
 import fs2._
 import scodec.bits.ByteVector
+import cats.effect.unsafe.implicits.global //for use in the repl //for use in the repl
 
 val chunksize = 128 * 1024
 // chunksize: Int = 131072
@@ -159,10 +160,10 @@ val data = Stream.chunk[IO, Byte](Chunk.byteVector(ByteVector.fromValidHex("6865
 // data: Stream[IO, Byte] = Stream(..)
 val meta = bitpeace.saveNew(data, chunksize, MimetypeHint.none)
 // meta: Stream[IO[A], FileMeta] = Stream(..)
-val savedFileMeta = meta.compile.lastOrError.unsafeRunSync
+val savedFileMeta = meta.compile.lastOrError.unsafeRunSync()
 // savedFileMeta: FileMeta = FileMeta(
-//   id = "fa18547f-9044-4864-ab5f-475e55ff2659",
-//   timestamp = 2021-05-09T18:57:30.243259Z,
+//   id = "39e3efc8-1091-4230-852c-cd2496ad027e",
+//   timestamp = 2021-06-20T11:39:22.320119Z,
 //   mimetype = Mimetype(primary = "text", sub = "plain", params = Map()),
 //   length = 11L,
 //   checksum = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
@@ -230,7 +231,7 @@ val chunk = FileChunk("file-id", 1, ByteVector.fromValidHex("68656c6c6f20776f726
 //   chunkNr = 1L,
 //   chunkData = Chunk(
 //     bytes = View(
-//       at = scodec.bits.ByteVector$AtArray@220d70c1,
+//       at = scodec.bits.ByteVector$AtArray@456bd1d9,
 //       offset = 0L,
 //       size = 11L
 //     )
@@ -281,19 +282,19 @@ several methods to construct `RangeDefs`. For example:
 ```scala
 // get the first chunk only
 bitpeace.fetchData(RangeDef.firstChunk)
-// res5: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$11540/0x0000000103531040@19fb0d55
+// res5: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$48309/0x0000000106d6b840@689cd833
 
 // get the first x bytes
 bitpeace.fetchData(RangeDef.firstBytes(1024))
-// res6: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$11540/0x0000000103531040@223858d0
+// res6: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$48309/0x0000000106d6b840@54cddf58
 
 // get next 2K bytes skipping 4K bytes
 bitpeace.fetchData(RangeDef.bytes(Some(4 * 1024), Some(2 * 1024)))
-// res7: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$11540/0x0000000103531040@4f3c52a6
+// res7: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$48309/0x0000000106d6b840@745e44f9
 
 // get all remaining bytes after skipping 4K
 bitpeace.fetchData(RangeDef.bytes(Some(4 * 1024), None))
-// res8: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$11540/0x0000000103531040@94853bb
+// res8: Stream[IO[A], FileMeta] => Stream[IO[A], Byte] = bitpeace.Bitpeace$$anon$1$$Lambda$48309/0x0000000106d6b840@7a95071e
 ```
 
 

@@ -3,11 +3,11 @@ package bitpeace
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import doobie.implicits._
 import fs2._
@@ -238,7 +238,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
           "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f"
         )
         assertEquals(m.chunks, 4)
-        assertEquals(m.mimetype, Mimetype.`application/pdf`)
+        assertEquals(m.mimetype, Mimetype.applicationPdf)
         assertEquals(m.length, 65404L)
       case r @ Outcome.Unmodified(_) =>
         fail(s"Unexpected result: $r")
@@ -294,10 +294,11 @@ object BitpeaceSpec extends BitpeaceTestSuite {
   }
 
   test("save concurrently same file") { xa =>
-    val store     = makeBitpeace(xa)
-    val chunksize = 32 * 1024
-    val data      = resourceStream("/files/file.pdf", chunksize)
-    val peng      = new CountDownLatch(1)
+    implicit val ec = ExecutionContext.Implicits.global
+    val store       = makeBitpeace(xa)
+    val chunksize   = 32 * 1024
+    val data        = resourceStream("/files/file.pdf", chunksize)
+    val peng        = new CountDownLatch(1)
     val f0 = Future {
       peng.await()
       store.save(data, chunksize, MimetypeHint.none).compile.last.unsafeRunSync().get

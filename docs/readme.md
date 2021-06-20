@@ -93,9 +93,8 @@ The second requirement is a doobie `Transactor` to connect to the
 database. For example, this creates one for the H2 database:
 
 ```scala mdoc
-import doobie._, doobie.implicits._
-
-implicit val CS = IO.contextShift(scala.concurrent.ExecutionContext.global)
+import doobie._
+import doobie.implicits._
 
 val xa = Transactor.fromDriverManager[IO](
   "org.h2.Driver", s"jdbc:h2:/tmp/bitpeace-testdb", "sa", ""
@@ -112,7 +111,9 @@ In order to start using it, the database schema must exist. The
 `BitpeaceTables` class is a convenience helper to do that:
 
 ```scala mdoc
-BitpeaceTables(BitpeaceConfig.default[IO]).create(sql.Dbms.H2).transact(xa).unsafeRunSync
+import cats.effect.unsafe.implicits.global
+
+BitpeaceTables(BitpeaceConfig.default[IO]).create(sql.Dbms.H2).transact(xa).unsafeRunSync()
 ```
 
 
@@ -133,11 +134,12 @@ Data can be inserted using `saveNew`:
 ```scala mdoc
 import fs2._
 import scodec.bits.ByteVector
+import cats.effect.unsafe.implicits.global //for use in the repl
 
 val chunksize = 128 * 1024
 val data = Stream.chunk[IO, Byte](Chunk.byteVector(ByteVector.fromValidHex("68656c6c6f20776f726c64")))
 val meta = bitpeace.saveNew(data, chunksize, MimetypeHint.none)
-val savedFileMeta = meta.compile.lastOrError.unsafeRunSync
+val savedFileMeta = meta.compile.lastOrError.unsafeRunSync()
 ```
 
 The `FileMeta` return value contains some meta data about the input
