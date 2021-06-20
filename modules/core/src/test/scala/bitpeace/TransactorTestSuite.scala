@@ -1,13 +1,10 @@
 package bitpeace
 
-import scala.concurrent.ExecutionContext
-
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import minitest._
 
 trait TransactorTestSuite extends TestSuite[DbSetup] with Helpers {
-
-  implicit val testContextShift: ContextShift[IO] = TransactorTestSuite.testContextShift
 
   def dbSetup: DB[IO] = DB.H2
 
@@ -27,5 +24,4 @@ trait TransactorTestSuite extends TestSuite[DbSetup] with Helpers {
 object TransactorTestSuite {
   private val counter = new java.util.concurrent.atomic.AtomicLong(0)
 
-  implicit val testContextShift = IO.contextShift(ExecutionContext.global)
 }

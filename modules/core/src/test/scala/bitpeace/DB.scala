@@ -10,9 +10,9 @@ import doobie.implicits._
 
 trait DB[F[_]] {
 
-  def tx(db: String)(implicit C: ContextShift[F]): Transactor[F]
+  def tx(db: String): Transactor[F]
 
-  def dropDatabase(db: String, tx: Transactor[F])(implicit C: ContextShift[IO]): F[Unit]
+  def dropDatabase(db: String, tx: Transactor[F]): F[Unit]
 
   def dbms: Dbms
 }
@@ -21,7 +21,7 @@ object DB {
 
   object H2 extends DB[IO] {
 
-    def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
+    def tx(db: String): Transactor[IO] = {
       val file = Paths.get(s"target/${db}").toAbsolutePath
       Files.createDirectories(file.getParent)
 
@@ -33,7 +33,7 @@ object DB {
       )
     }
 
-    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) =
+    def dropDatabase(db: String, xa: Transactor[IO]) =
       for {
         file <- IO(Paths.get(s"target/${db}").toAbsolutePath)
         _    <- sql"drop all objects delete files;".update.run.transact(xa)
@@ -54,7 +54,7 @@ object DB {
   object Postgres extends DB[IO] {
     Class.forName("org.postgresql.Driver")
 
-    def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
+    def tx(db: String): Transactor[IO] = {
       val conn =
         DriverManager.getConnection("jdbc:postgresql://localhost/postgres", "dev", "dev");
       val statement = conn.createStatement();
@@ -69,7 +69,7 @@ object DB {
       )
     }
 
-    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) =
+    def dropDatabase(db: String, xa: Transactor[IO]) =
       IO {
         val conn =
           DriverManager.getConnection(
@@ -88,7 +88,7 @@ object DB {
   object MariaDB extends DB[IO] {
     Class.forName("org.mariadb.jdbc.Driver")
 
-    def tx(db: String)(implicit C: ContextShift[IO]): Transactor[IO] = {
+    def tx(db: String): Transactor[IO] = {
       val conn =
         DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");
       val statement = conn.createStatement();
@@ -103,7 +103,7 @@ object DB {
       )
     }
 
-    def dropDatabase(db: String, xa: Transactor[IO])(implicit C: ContextShift[IO]) =
+    def dropDatabase(db: String, xa: Transactor[IO]) =
       IO {
         val conn =
           DriverManager.getConnection("jdbc:mariadb://192.168.1.172/mysql", "dev", "dev");

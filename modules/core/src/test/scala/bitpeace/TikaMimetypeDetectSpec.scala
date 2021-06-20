@@ -1,5 +1,6 @@
 package bitpeace
 
+import cats.effect.unsafe.implicits.global
 import minitest._
 import scodec.bits.ByteVector
 
