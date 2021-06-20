@@ -14,7 +14,7 @@ lazy val sharedSettings = Seq(
   organization := "com.github.eikek",
   licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
   homepage := Some(url("https://github.com/eikek/bitpeace")),
-  crossScalaVersions := Seq(Version.scala212, Version.scala213),
+  crossScalaVersions := Seq(Version.scala212, Version.scala213, Version.scala3),
   scalaVersion := Version.scala213,
   scalacOptions ++=
     Seq(
@@ -37,6 +37,16 @@ lazy val sharedSettings = Seq(
          )
        else if (scalaBinaryVersion.value.startsWith("2.13"))
          List("-Werror", "-Wdead-code", "-Wunused", "-Wvalue-discard")
+       else if (scalaBinaryVersion.value == "3")
+         List(
+           "-explain",
+           "-explain-types",
+           "-indent",
+           "-print-lines",
+           "-Ykind-projector",
+           "-Xmigration",
+           "-Xfatal-warnings"
+         )
        else
          Nil),
   Compile / console / scalacOptions ~= (_.filterNot(
@@ -140,4 +150,10 @@ lazy val readme = project
   .dependsOn(core)
 
 lazy val root =
-  project.in(file(".")).settings(sharedSettings).settings(noPublish).aggregate(core)
+  project.in(file("."))
+    .settings(sharedSettings)
+    .settings(noPublish)
+    .settings(
+      crossScalaVersions := Nil
+    )
+    .aggregate(core)
