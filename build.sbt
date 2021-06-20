@@ -2,7 +2,7 @@ import Dependencies._
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt.nio.file.FileTreeView
 
-addCommandAlias("ci", "; lint; +test; +publishLocal")
+addCommandAlias("ci", "; lint; +test; readme/updateReadme; +publishLocal")
 addCommandAlias(
   "lint",
   "scalafmtSbtCheck; scalafmtCheckAll; Compile/scalafix --check; Test/scalafix --check"
@@ -131,7 +131,7 @@ lazy val readme = project
     scalacOptions := Seq(),
     libraryDependencies ++= Seq(tika, h2),
     mdocVariables := Map(
-      "VERSION" -> version.value
+      "VERSION" -> latestRelease.value
     ),
     updateReadme := {
       FileTreeView.default
