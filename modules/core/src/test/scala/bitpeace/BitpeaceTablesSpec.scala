@@ -1,19 +1,18 @@
 package bitpeace
 
-import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import doobie.implicits._
+import munit._
 
-object BitpeaceTablesSpec extends TransactorTestSuite {
+class BitpeaceTablesSpec extends FunSuite with Fixtures with Helpers {
 
-  val config = BitpeaceConfig.default[IO]
-  val tables = BitpeaceTables(config)
+  val tables = BitpeaceTables(Fixtures.config)
 
-//  override val dbSetup = DB.Postgres
+  val db = dbFixture(DB.H2, createTables = false)
 
-  test("create tables") { p =>
-    tables.create(p.dbms).transact(p.xa).unsafeRunSync()
-    val c = sql.Statements(config).count.transact(p.xa).unsafeRunSync()
-    assertEquals(c, 0)
+  db.test("create tables") { p =>
+    tables.create(p.dbms.dbms).transact(p.xa).unsafeRunSync()
+    val c = sql.Statements(Fixtures.config).count.transact(p.xa).unsafeRunSync()
+    assertEquals(c, 0L)
   }
 }

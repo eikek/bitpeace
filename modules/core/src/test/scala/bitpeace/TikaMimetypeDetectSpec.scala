@@ -1,10 +1,10 @@
 package bitpeace
 
 import cats.effect.unsafe.implicits.global
-import minitest._
+import munit._
 import scodec.bits.ByteVector
 
-object TikaMimetypeDetectSpec extends SimpleTestSuite with Helpers {
+class TikaMimetypeDetectSpec extends FunSuite with Helpers {
 
   val tika = TikaMimetypeDetect
 

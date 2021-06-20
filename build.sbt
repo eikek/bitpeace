@@ -1,6 +1,6 @@
-import Dependencies._
 import com.typesafe.sbt.SbtGit.GitKeys._
 import sbt.nio.file.FileTreeView
+import Dependencies.Version
 
 addCommandAlias("ci", "; lint; +test; readme/updateReadme; +publishLocal")
 addCommandAlias(
@@ -52,10 +52,15 @@ lazy val sharedSettings = Seq(
   Compile / console / scalacOptions ~= (_.filterNot(
     Set("-Xfatal-warnings", "-Ywarn-unused-import").contains
   )),
-  Test / scalacOptions := (Compile / console / scalacOptions).value,
-  testFrameworks += new TestFramework("minitest.runner.Framework"),
   versionScheme := Some("early-semver")
 ) ++ publishSettings
+
+val testSettings = Seq(
+  libraryDependencies ++= (Dependencies.munit ++
+    Dependencies.h2 ++ Dependencies.postgres ++ Dependencies.mariadb ++
+    Dependencies.fs2Io ++ Dependencies.logbackClassic).map(_ % Test),
+  testFrameworks += new TestFramework("munit.Framework")
+)
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
@@ -103,20 +108,21 @@ val scalafixSettings = Seq(
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % Version.organizeImports
 )
 
-lazy val coreDeps =
-  Seq(doobieCore, scodecBits, activation, tika.intransitive % "provided")
-lazy val testDeps = Seq(minitest, h2, postgres, mariadb, fs2Io).map(_ % "test")
-
 lazy val core = project
   .in(file("modules/core"))
   .settings(sharedSettings)
   .settings(publishSettings)
+  .settings(testSettings)
   .settings(scalafixSettings)
   .settings(
     Seq(
       name := "bitpeace-core",
       description := "Library for dealing with binary data using doobie.",
-      libraryDependencies ++= coreDeps ++ testDeps
+      libraryDependencies ++=
+        Dependencies.doobieCore ++
+          Dependencies.scodecBits ++
+          Dependencies.activation ++
+          Dependencies.tika.map(_.intransitive % "provided")
     )
   )
 
@@ -129,7 +135,7 @@ lazy val readme = project
   .settings(
     name := "bitpeace-readme",
     scalacOptions := Seq(),
-    libraryDependencies ++= Seq(tika, h2),
+    libraryDependencies ++= Dependencies.tika ++ Dependencies.h2,
     mdocVariables := Map(
       "VERSION" -> latestRelease.value
     ),
