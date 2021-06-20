@@ -4,9 +4,9 @@ import java.time.Instant
 
 import bitpeace.RangeDef._
 import cats.data.{Ior, Validated}
-import minitest._
+import munit._
 
-object RangeDefSpec extends SimpleTestSuite {
+class RangeDefSpec extends FunSuite {
 
   def fs(len: Long, chunkSize: Long): FileMeta =
     FileMeta("id", Instant.now, Mimetype.unknown, len, "", 22, chunkSize.toInt)

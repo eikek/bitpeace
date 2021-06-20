@@ -1,8 +1,8 @@
 package bitpeace
 
-import minitest._
+import munit._
 
-object MimetypeSpec extends SimpleTestSuite {
+class MimetypeSpec extends FunSuite {
 
   test("reading/parsing") {
     val mtStr =

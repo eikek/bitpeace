@@ -11,18 +11,19 @@ import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import doobie.implicits._
 import fs2._
+import munit._
 import scodec.bits.ByteVector
 
-object BitpeaceSpec extends BitpeaceTestSuite {
+class BitpeaceSpec extends FunSuite with Fixtures with Helpers {
   def makeBitpeace(p: DbSetup): Bitpeace[IO] =
-    Bitpeace(config, p.xa)
+    Bitpeace(Fixtures.config, p.xa)
 
-//  override val dbSetup = DB.Postgres
+  val db = dbFixture(DB.H2, createTables = true)
 
   def chunkCount =
     sql"""SELECT count(*) from FileChunk""".query[Int].unique
 
-  test("save new with id") { xa =>
+  db.test("save new with id") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -36,7 +37,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out.id, "abc")
   }
 
-  test("add chunks unoreded sequentially") { xa =>
+  db.test("add chunks unoreded sequentially") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -72,7 +73,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     }
   }
 
-  test("add chunk of small file") { xa =>
+  db.test("add chunk of small file") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 256 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -106,7 +107,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out.result.chunks, out1.chunks)
   }
 
-  test("add chunk in random order concurrently") { p =>
+  db.test("add chunk in random order concurrently") { p =>
     val store     = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -156,7 +157,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     prg.compile.drain.unsafeRunSync()
   }
 
-  test("add chunk that exists") { xa =>
+  db.test("add chunk that exists") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -189,7 +190,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out1.result, out2.result)
   }
 
-  test("save new file") { xa =>
+  db.test("save new file") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", 2048)
@@ -208,7 +209,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(out1.id != out2.id)
     assertEquals(out2.checksum, out1.checksum)
 
-    assertEquals(store.count.compile.last.unsafeRunSync().orEmpty, 2)
+    assertEquals(store.count.compile.last.unsafeRunSync().orEmpty, 2L)
     assertEquals(
       store.get(out1.id).unNoneTerminate.compile.last.unsafeRunSync(),
       Some(out1)
@@ -219,7 +220,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     )
   }
 
-  test("save a file") { xa =>
+  db.test("save a file") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", 2048)
@@ -249,8 +250,8 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(chunks.size, fm.chunks)
     chunks.foreach(c => assertEquals(c.fileId, fm.id))
     chunks.init.foreach(c => assertEquals(c.chunkLength, chunksize.toLong))
-    assertEquals(chunks.last.chunkLength, 16252)
-    assertEquals(chunks.foldLeft(0L)(_ + _.chunkLength), 65404)
+    assertEquals(chunks.last.chunkLength, 16252L)
+    assertEquals(chunks.foldLeft(0L)(_ + _.chunkLength), 65404L)
 
     val bytesDb = store
       .get(fm.id)
@@ -266,10 +267,10 @@ object BitpeaceSpec extends BitpeaceTestSuite {
 
     assertEquals(bytesChunk, bytesFile)
     assertEquals(bytesDb, bytesFile)
-    assertEquals(store.count.compile.last.unsafeRunSync().orEmpty, 1)
+    assertEquals(store.count.compile.last.unsafeRunSync().orEmpty, 1L)
   }
 
-  test("handle existing files") { xa =>
+  db.test("handle existing files") { xa =>
     val store     = makeBitpeace(xa)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -293,7 +294,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(out2, Outcome.Unmodified(fm))
   }
 
-  test("save concurrently same file") { xa =>
+  db.test("save concurrently same file") { xa =>
     implicit val ec = ExecutionContext.Implicits.global
     val store       = makeBitpeace(xa)
     val chunksize   = 32 * 1024
@@ -320,7 +321,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(o0.result, o1.result)
   }
 
-  test("load chunks") { xa =>
+  db.test("load chunks") { xa =>
     import RangeDef.bytes
 
     val store     = makeBitpeace(xa)
@@ -354,7 +355,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     )
   }
 
-  test("exists") { p =>
+  db.test("exists") { p =>
     val store     = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -365,7 +366,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assert(!store.exists("abc").compile.last.unsafeRunSync().get)
   }
 
-  test("delete") { p =>
+  db.test("delete") { p =>
     val store     = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
@@ -378,7 +379,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
     assertEquals(chunkCount.transact(p.xa).unsafeRunSync(), 0)
   }
 
-  test("remove partial chunk") { p =>
+  db.test("remove partial chunk") { p =>
     val store     = makeBitpeace(p)
     val chunksize = 16 * 1024
     val data      = resourceStream("/files/file.pdf", chunksize)
