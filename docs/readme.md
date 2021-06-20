@@ -15,13 +15,16 @@ over http.
 
 ## Using
 
-Bitpeace is available from maven central for scala 2.12 and from
-version 0.4 for scala 2.13.
+Bitpeace is available from maven central for scala 2.12, 2.13 and 3.
 
 ```
 "com.github.eikek" %% "bitpeace-core" % "@VERSION@"
 ```
 
+Note: from 0.9.0 on, it is build against FS2 3/CE3. When doobie
+releases a final version (currently it is 1.0.0-Mx), then bitpeace
+0.9.0 will be released as well. Until then progress is tracked in
+0.9.0-Mx releases.
 
 ## Dependencies
 
