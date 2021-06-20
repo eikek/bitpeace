@@ -31,7 +31,7 @@ object TikaMimetypeDetect extends MimetypeDetect {
   private def normalize(in: Mimetype): Mimetype =
     in match {
       case Mimetype(_, sub, p) if sub contains "xhtml" =>
-        Mimetype.`text/html`.copy(params = p)
+        Mimetype.textHtml.copy(params = p)
       case _ => in
     }
 

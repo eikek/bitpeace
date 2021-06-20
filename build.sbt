@@ -5,7 +5,7 @@ import sbt.nio.file.FileTreeView
 addCommandAlias("ci", "; lint; +test; +publishLocal")
 addCommandAlias(
   "lint",
-  "; scalafmtSbtCheck; scalafmtCheckAll; Compile/scalafix --check; Test/scalafix --check"
+  "scalafmtSbtCheck; scalafmtCheckAll; Compile/scalafix --check; Test/scalafix --check"
 )
 addCommandAlias("fix", "; Compile/scalafix; Test/scalafix; scalafmtSbt; scalafmtAll")
 
@@ -150,7 +150,8 @@ lazy val readme = project
   .dependsOn(core)
 
 lazy val root =
-  project.in(file("."))
+  project
+    .in(file("."))
     .settings(sharedSettings)
     .settings(noPublish)
     .settings(

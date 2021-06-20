@@ -238,7 +238,7 @@ object BitpeaceSpec extends BitpeaceTestSuite {
           "8fabb506346fc4b10e0e10f33ec0fa819038d701224ca63cbee7620c38b4736f"
         )
         assertEquals(m.chunks, 4)
-        assertEquals(m.mimetype, Mimetype.`application/pdf`)
+        assertEquals(m.mimetype, Mimetype.applicationPdf)
         assertEquals(m.length, 65404L)
       case r @ Outcome.Unmodified(_) =>
         fail(s"Unexpected result: $r")

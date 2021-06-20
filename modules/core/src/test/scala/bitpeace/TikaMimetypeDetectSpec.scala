@@ -16,12 +16,12 @@ object TikaMimetypeDetectSpec extends SimpleTestSuite with Helpers {
       .unsafeRunSync()
       .head
 
-    assertEquals(tika.fromBytes(bytes, MimetypeHint.none), Mimetype.`application/pdf`)
+    assertEquals(tika.fromBytes(bytes, MimetypeHint.none), Mimetype.applicationPdf)
     assertEquals(
       tika.fromBytes(bytes, MimetypeHint.filename("file.pdf")),
-      Mimetype.`application/pdf`
+      Mimetype.applicationPdf
     )
-    assertEquals(tika.fromName("file.pdf", ""), Mimetype.`application/pdf`)
+    assertEquals(tika.fromName("file.pdf", ""), Mimetype.applicationPdf)
   }
 
 }
