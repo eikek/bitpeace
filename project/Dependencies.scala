@@ -10,7 +10,7 @@ object Dependencies {
     val log4s           = "1.4.0"
     val logback         = "1.2.3"
     val mariadb         = "2.7.3"
-    val munitVersion    = "0.7.26"
+    val munitVersion    = "0.7.27"
     val organizeImports = "0.5.0"
     val postgres        = "42.2.22"
     val scala212        = "2.12.14"
