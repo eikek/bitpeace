@@ -1,7 +1,7 @@
 package bitpeace
 
 import org.apache.tika.config.TikaConfig
-import org.apache.tika.metadata.{HttpHeaders, Metadata, TikaMetadataKeys}
+import org.apache.tika.metadata.{HttpHeaders, Metadata, TikaCoreProperties}
 import org.apache.tika.mime.MediaType
 import scodec.bits.ByteVector
 
@@ -23,7 +23,7 @@ object TikaMimetypeDetect extends MimetypeDetect {
 
   private def makeMetadata(hint: MimetypeHint): Metadata = {
     val md = new Metadata
-    hint.filename.foreach(md.set(TikaMetadataKeys.RESOURCE_NAME_KEY, _))
+    hint.filename.foreach(md.set(TikaCoreProperties.RESOURCE_NAME_KEY, _))
     hint.advertised.foreach(md.set(HttpHeaders.CONTENT_TYPE, _))
     md
   }

@@ -115,15 +115,14 @@ lazy val core = project
   .settings(testSettings)
   .settings(scalafixSettings)
   .settings(
-    Seq(
-      name := "bitpeace-core",
-      description := "Library for dealing with binary data using doobie.",
-      libraryDependencies ++=
-        Dependencies.doobieCore ++
-          Dependencies.scodecBits ++
-          Dependencies.activation ++
-          Dependencies.tika.map(_.intransitive % "provided")
-    )
+    name := "bitpeace-core",
+    description := "Library for dealing with binary data using doobie.",
+    libraryDependencies ++=
+      Dependencies.doobieCore ++
+        Dependencies.scodecBits ++
+        Dependencies.activation ++
+        Dependencies.tika.map(_.intransitive % "provided") ++
+        Dependencies.tika.map(_ % Test)
   )
 
 val updateReadme = inputKey[Unit]("Update readme")

@@ -40,10 +40,10 @@ While trying to minimize further dependencies, I chose to these:
   https://eclipse-ee4j.github.io/jaf/ (used to parse mimetype, it is
   included in the jdk up until java8)
 
-The last two dependencies are itself “dependency-free”. The
-`tika-core` dependcny is marked as optional. It is only required, if
-using the provided config that uses tika for mime-type extraction
-`BitpeaceConfig.defaultTika`.
+The `tika-core` dependcny is marked as optional. It is only required,
+if using the provided config that uses tika for mime-type extraction
+`BitpeaceConfig.defaultTika`. Unfortunately, since tika 2.0.0
+tika-core depends additionally on `commons-io`.
 
 Since mimetype detection belongs to “handling binaries”, I wanted to
 include it in this library. Tika is used for mimetype detection by
