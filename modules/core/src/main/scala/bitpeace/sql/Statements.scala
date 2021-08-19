@@ -80,7 +80,7 @@ trait Statements[F[_]] {
     val len =
       fr"(SELECT SUM(LENGTH(chunkData)) FROM" ++ chunkTable ++ fr"WHERE fileId = $id)"
     (fr"UPDATE " ++ metaTable ++
-      sql" SET timestamp = ${timestamp}, checksum = ${checksum}, length = " ++
+      sql" SET timestamp = $timestamp, checksum = $checksum, length = " ++
       len ++
       fr"WHERE id = $id").update
   }
@@ -107,7 +107,7 @@ trait Statements[F[_]] {
 
   def chunkLengthCheckOrRemove(fileId: String, chunkNr: Long, chunkLength: Long) = {
     val query = fr"SELECT count(*) FROM" ++ chunkTable ++
-      fr"WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != ${chunkLength}"
+      fr"WHERE fileId = $fileId AND chunknr = $chunkNr AND length(chunkData) != $chunkLength"
 
     val delete =
       (fr"DELETE FROM" ++ chunkTable ++ fr"WHERE fileId = $fileId AND chunknr = $chunkNr").update.run

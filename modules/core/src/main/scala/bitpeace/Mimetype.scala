@@ -16,7 +16,7 @@ case class Mimetype(
     if (this == Mimetype.unknown) other else this
 
   /** Return basetype as string in {{{primary/sub}}} format. */
-  def baseType = s"${primary}/${sub}"
+  def baseType = s"$primary/$sub"
 
   /** Return the value of parameter {{{name}}}. */
   def param(name: String): Option[String] =
@@ -26,8 +26,8 @@ case class Mimetype(
   def param(name: String, value: String): Mimetype =
     copy(params = params.updated(name, value))
 
-  /** Return {{{true}}} if base type of {{{this}}} and {{{other}}} are
-    * equal. IOW compare without parameters.
+  /** Return {{{true}}} if base type of {{{this}}} and {{{other}}} are equal. IOW compare
+    * without parameters.
     */
   def baseEqual(other: Mimetype): Boolean =
     baseType == other.baseType

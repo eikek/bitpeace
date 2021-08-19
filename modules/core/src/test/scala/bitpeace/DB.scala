@@ -22,12 +22,12 @@ object DB {
   object H2 extends DB[IO] {
 
     def tx(db: String): Transactor[IO] = {
-      val file = Paths.get(s"target/${db}").toAbsolutePath
+      val file = Paths.get(s"target/$db").toAbsolutePath
       Files.createDirectories(file.getParent)
 
       Transactor.fromDriverManager[IO](
         "org.h2.Driver",
-        s"jdbc:h2:${file}",
+        s"jdbc:h2:$file",
         "sa",
         ""
       )
@@ -35,7 +35,7 @@ object DB {
 
     def dropDatabase(db: String, xa: Transactor[IO]) =
       for {
-        file <- IO(Paths.get(s"target/${db}").toAbsolutePath)
+        file <- IO(Paths.get(s"target/$db").toAbsolutePath)
         _    <- sql"drop all objects delete files;".update.run.transact(xa)
         _ <- IO(
           Files

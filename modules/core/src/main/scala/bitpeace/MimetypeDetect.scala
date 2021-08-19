@@ -2,8 +2,8 @@ package bitpeace
 
 import scodec.bits.ByteVector
 
-/** Detect content type given bytes and optionally some hints like
-  * filename or advertised mimetype.
+/** Detect content type given bytes and optionally some hints like filename or advertised
+  * mimetype.
   */
 trait MimetypeDetect {
 

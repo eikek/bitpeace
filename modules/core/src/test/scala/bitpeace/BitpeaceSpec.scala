@@ -51,9 +51,9 @@ class BitpeaceSpec extends FunSuite with Fixtures with Helpers {
 
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({ case (c, i) =>
+      .map { case (c, i) =>
         FileChunk(fileId, i, ByteVector.view(c.toArray))
-      })
+      }
       .compile
       .toVector
       .unsafeRunSync()
@@ -86,9 +86,9 @@ class BitpeaceSpec extends FunSuite with Fixtures with Helpers {
       .get
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({ case (c, i) =>
+      .map { case (c, i) =>
         FileChunk(fileId, i, ByteVector.view(c.toArray))
-      })
+      }
       .compile
       .toVector
       .unsafeRunSync()
@@ -120,9 +120,9 @@ class BitpeaceSpec extends FunSuite with Fixtures with Helpers {
       .get
 
     val chunks = data.chunks.zipWithIndex
-      .map({ case (c, i) =>
+      .map { case (c, i) =>
         FileChunk("fileabc", i, ByteVector.view(c.toArray))
-      })
+      }
       .compile
       .toVector
       .unsafeRunSync()
@@ -164,9 +164,9 @@ class BitpeaceSpec extends FunSuite with Fixtures with Helpers {
 
     val fileId = "fileabc"
     val chunks = data.chunks.zipWithIndex
-      .map({ case (c, i) =>
+      .map { case (c, i) =>
         FileChunk(fileId, i, ByteVector.view(c.toArray))
-      })
+      }
       .compile
       .toVector
       .unsafeRunSync()
