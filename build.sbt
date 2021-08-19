@@ -10,12 +10,12 @@ addCommandAlias(
 addCommandAlias("fix", "; Compile/scalafix; Test/scalafix; scalafmtSbt; scalafmtAll")
 
 lazy val sharedSettings = Seq(
-  name := "bitpeace",
-  organization := "com.github.eikek",
-  licenses := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
-  homepage := Some(url("https://github.com/eikek/bitpeace")),
+  name               := "bitpeace",
+  organization       := "com.github.eikek",
+  licenses           := Seq("MIT" -> url("http://spdx.org/licenses/MIT")),
+  homepage           := Some(url("https://github.com/eikek/bitpeace")),
   crossScalaVersions := Seq(Version.scala212, Version.scala213, Version.scala3),
-  scalaVersion := Version.scala213,
+  scalaVersion       := Version.scala213,
   scalacOptions ++=
     Seq(
       "-feature",
@@ -97,8 +97,8 @@ val buildInfoSettings = Seq(
 )
 
 lazy val noPublish = Seq(
-  publish := {},
-  publishLocal := {},
+  publish         := {},
+  publishLocal    := {},
   publishArtifact := false
 )
 
@@ -115,7 +115,7 @@ lazy val core = project
   .settings(testSettings)
   .settings(scalafixSettings)
   .settings(
-    name := "bitpeace-core",
+    name        := "bitpeace-core",
     description := "Library for dealing with binary data using doobie.",
     libraryDependencies ++=
       Dependencies.doobieCore ++
@@ -132,7 +132,7 @@ lazy val readme = project
   .settings(sharedSettings)
   .settings(noPublish)
   .settings(
-    name := "bitpeace-readme",
+    name          := "bitpeace-readme",
     scalacOptions := Seq(),
     libraryDependencies ++= Dependencies.tika ++ Dependencies.h2,
     mdocVariables := Map(

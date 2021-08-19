@@ -13,10 +13,9 @@ import scodec.bits.ByteVector
 
 /** A store for binary data.
   *
-  * Binary data is given as a stream of bytes. The stream is saved in
-  * chunks, where each chunk is stored into a blob object (in contrast
-  * to use one blob for the whole data). This makes it possible to
-  * effectively retrieve partial content.
+  * Binary data is given as a stream of bytes. The stream is saved in chunks, where each
+  * chunk is stored into a blob object (in contrast to use one blob for the whole data).
+  * This makes it possible to effectively retrieve partial content.
   */
 trait Bitpeace[F[_]] {
 
@@ -32,9 +31,8 @@ trait Bitpeace[F[_]] {
 
   /** Save data in chunks of size `chunkSize` and check for duplicates.
     *
-    * Return either {{{Outcome.Created}}} if new data has been written
-    * (no duplicates) or {{{Outcome.Unmodified}}} if no data was
-    * written and the duplicate is returned.
+    * Return either {{{Outcome.Created}}} if new data has been written (no duplicates) or
+    * {{{Outcome.Unmodified}}} if no data was written and the duplicate is returned.
     */
   def save(
       data: Stream[F, Byte],
@@ -46,28 +44,25 @@ trait Bitpeace[F[_]] {
 
   /** “Merge” duplicates.
     *
-    * If the given {{{meta}}} object contains a random id (as returned
-    * from {{{saveNew}}}), check for duplicates using its checksum.
+    * If the given {{{meta}}} object contains a random id (as returned from
+    * {{{saveNew}}}), check for duplicates using its checksum.
     *
-    * If a duplicate is found, delete {{{meta}}} and its data and
-    * return the just found value. If no duplicate is found, update
-    * the id of {{{meta}}} to be its checksum.
+    * If a duplicate is found, delete {{{meta}}} and its data and return the just found
+    * value. If no duplicate is found, update the id of {{{meta}}} to be its checksum.
     *
-    * Return {{{Outcome.Unmodified}}} if there was a duplicate,
-    * or {{{Outcome.Created}}} if there was no duplicate.
+    * Return {{{Outcome.Unmodified}}} if there was a duplicate, or {{{Outcome.Created}}}
+    * if there was no duplicate.
     */
   def makeUnique(meta: FileMeta): Stream[F, Outcome[FileMeta]]
 
   /** Adds a new chunk of data to a file.
     *
-    * Creates or updates the corresponding [[FileMeta]] record and
-    * returns it. This is useful if you get chunks of data in some
-    * random order.
+    * Creates or updates the corresponding [[FileMeta]] record and returns it. This is
+    * useful if you get chunks of data in some random order.
     *
-    * If the chunk already exists with correct length, the return
-    * value is wrapped in [[Outcome.Unmodified]] and the given chunk
-    * is not written, otherwise a [[Outcome#Created]] is returned and
-    * the chunk is stored.
+    * If the chunk already exists with correct length, the return value is wrapped in
+    * [[Outcome.Unmodified]] and the given chunk is not written, otherwise a
+    * [[Outcome#Created]] is returned and the chunk is stored.
     */
   def addChunk(
       chunk: FileChunk,
@@ -76,7 +71,8 @@ trait Bitpeace[F[_]] {
       hint: MimetypeHint
   ): Stream[F, Outcome[FileMeta]]
 
-  /** Calculates the total number of chunks from the given length and calls [[addChunk]]. */
+  /** Calculates the total number of chunks from the given length and calls [[addChunk]].
+    */
   def addChunkByLength(
       chunk: FileChunk,
       chunksize: Int,
@@ -90,27 +86,25 @@ trait Bitpeace[F[_]] {
   /** Return meta data about one file. */
   def get(id: String): Stream[F, Option[FileMeta]]
 
-  /** Fetch data using one connection per chunk. So connections are
-    * closed immediately after reading a chunk.
+  /** Fetch data using one connection per chunk. So connections are closed immediately
+    * after reading a chunk.
     */
   def fetchData(range: RangeDef): Pipe[F, FileMeta, Byte]
 
-  /** Fetch data using one connection for the whole stream. It is closed
-    * once the stream terminates.
+  /** Fetch data using one connection for the whole stream. It is closed once the stream
+    * terminates.
     */
   def fetchData2(range: RangeDef): Pipe[F, FileMeta, Byte]
 
   /** Return whether a file with a given id exists. */
   def exists(id: String): Stream[F, Boolean]
 
-  /** Return whether a file with given id has a chunk with the given
-    * chunkNr.
+  /** Return whether a file with given id has a chunk with the given chunkNr.
     */
   def chunkExists(id: String, chunkNr: Long): Stream[F, Boolean]
 
-  /** Like {{{chunkExists}} but also checks the chunk size. If a chunk
-    * with different size exists, it is removed and {{{false}}} is
-    * returned.
+  /** Like {{{chunkExists}} but also checks the chunk size. If a chunk with different size
+    * exists, it is removed and {{{false}}} is returned.
     */
   def chunkExistsRemove(id: String, chunkNr: Long, chunkLength: Long): Stream[F, Boolean]
 
@@ -401,7 +395,7 @@ object Bitpeace {
       ): Pipe[F, FileChunk, FileMeta] =
         _.fold(
           (sha.newBuilder, FileMeta("", time, Mimetype.unknown, 0L, "", 0, chunkSize))
-        )({ case ((shab, m), chunk) =>
+        ) { case ((shab, m), chunk) =>
           val fm = m.incChunks(1).incLength(chunk.chunkLength) match {
             case nextFm if nextFm.chunks == 1 =>
               nextFm.copy(mimetype =
@@ -411,7 +405,7 @@ object Bitpeace {
               nextFm
           }
           (shab.update(chunk.chunkData), fm)
-        }).map(t => t._2.copy(checksum = t._1.get))
+        }.map(t => t._2.copy(checksum = t._1.get))
 
       private def makeChecksum(id: String): Stream[F, String] =
         stmt

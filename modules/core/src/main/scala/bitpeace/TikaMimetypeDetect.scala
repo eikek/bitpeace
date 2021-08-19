@@ -7,8 +7,7 @@ import scodec.bits.ByteVector
 
 /** Use Tika for content type detection.
   *
-  * Remember to add a dependency to tika, as this is an optional
-  * feature.
+  * Remember to add a dependency to tika, as this is an optional feature.
   */
 object TikaMimetypeDetect extends MimetypeDetect {
   private val tika = new TikaConfig().getDetector
