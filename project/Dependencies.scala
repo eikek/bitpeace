@@ -16,7 +16,7 @@ object Dependencies {
     val scala212        = "2.12.14"
     val scala213        = "2.13.6"
     val scala3          = "3.0.1"
-    val scodec          = "1.1.27"
+    val scodec          = "1.1.28"
     val tika            = "2.1.0"
   }
 
