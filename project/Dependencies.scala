@@ -15,7 +15,7 @@ object Dependencies {
     val postgres        = "42.2.23"
     val scala212        = "2.12.14"
     val scala213        = "2.13.6"
-    val scala3          = "3.0.1"
+    val scala3          = "3.0.2"
     val scodec          = "1.1.28"
     val tika            = "2.1.0"
   }
