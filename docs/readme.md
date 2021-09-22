@@ -5,6 +5,14 @@
 [![License](https://img.shields.io/github/license/eikek/bitpeace.svg?style=flat-square&color=steelblue)](https://github.com/eikek/bitpeace/blob/master/LICENSE.txt)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.eikek/bitpeace-core_2.13?color=blue&style=flat-square)](https://search.maven.org/artifact/com.github.eikek/bitpeace-core_2.13)
 
+## Deprecation Note
+
+*This library is discontinued. As an alternative I started
+[binny](https://github.com/eikek/binny) that is quite similar.*
+
+
+## Old Readme
+
 This is a library to store and load binary data based on
 [doobie](https://github.com/tpolecat/doobie).
 
